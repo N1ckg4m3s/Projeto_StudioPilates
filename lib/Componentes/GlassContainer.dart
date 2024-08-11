@@ -14,6 +14,7 @@ class GlassContainer extends StatelessWidget {
   final double? MaxHeight;
 
   final double? BorderRadios;
+  final double? Rotate;
 
   const GlassContainer(
       {super.key,
@@ -25,7 +26,8 @@ class GlassContainer extends StatelessWidget {
       this.MinHeight,
       this.MaxWidth,
       this.MaxHeight,
-      this.BorderRadios});
+      this.BorderRadios,
+      this.Rotate});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +44,7 @@ class GlassContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(BorderRadios ?? 10),
         gradient: RadialGradient(
           center: Alignment(-0.5, -0.5),
-          radius: 2,
+          radius: Rotate ?? 2,
           colors: [
             Color.fromRGBO(Cor!.red, Cor!.green, Cor!.blue, .1),
             Color.fromRGBO(Cor!.red, Cor!.green, Cor!.blue, .04),
@@ -52,11 +54,11 @@ class GlassContainer extends StatelessWidget {
         ),
         border: Border(
           top: BorderSide(
-            color: Colors.white.withOpacity(0.5),
+            color: Cor ?? Color.fromRGBO(0, 255, 255, 1),
             width: 1,
           ),
           left: BorderSide(
-            color: Colors.white.withOpacity(0.5),
+            color: Cor ?? Color.fromRGBO(0, 255, 255, 1),
             width: 1,
           ),
         ),
