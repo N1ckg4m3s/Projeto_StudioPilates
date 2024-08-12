@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names
+// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables
 
 import 'package:app_pilates/ConfigScreen/NovoAgendamento.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +16,7 @@ class ConfigScreen extends StatefulWidget {
 
 final List<String> Paginas = ["HORARIOS", "AGENDAMENTOS"];
 String ShowPage = "NOVOAGENDAMENTO";
+bool DroweAberto = true;
 
 class ConfigScreenState extends State<ConfigScreen> {
   @override
@@ -23,86 +24,192 @@ class ConfigScreenState extends State<ConfigScreen> {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
 
     var WindowWidth = MediaQuery.of(context).size.width;
+    var WindowHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(55, 46, 46, 1),
-      body: Row(
+        backgroundColor: Color.fromRGBO(55, 46, 46, 1),
+        body: LayoutBuilder(builder: (context, constraints) {
+          if (constraints.maxWidth < 600) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                    width: 50,
+                    height: 35,
+                    child: IconButton(
+                        style: ButtonStyle(
+                          overlayColor:
+                              MaterialStateProperty.all(Colors.transparent),
+                        ),
+                        onPressed: () => {
+                              setState(() {
+                                DroweAberto = !DroweAberto;
+                              })
+                            },
+                        icon: Icon(Icons.menu))),
+                Stack(
+                  children: [
+                    ConteudoTela(setState),
+                    if (DroweAberto)
+                      Container(
+                        width: WindowWidth,
+                        height: WindowHeight - 35,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(colors: [
+                            Colors.black,
+                            Colors.black,
+                            Colors.transparent,
+                          ], stops: [
+                            0,
+                            .5,
+                            1
+                          ]),
+                        ),
+                        padding: EdgeInsets.only(right: WindowWidth * .5),
+                        child: NavBar(WindowWidth, WindowHeight - 55, setState,
+                            EnviarParaInicio),
+                      )
+                  ],
+                )
+              ],
+            );
+          } else {
+            return Row(children: [
+              NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio),
+              ConteudoTela(setState),
+            ]);
+          }
+        }));
+  }
+}
+
+/*
+
+body: LayoutBuilder(builder: (context, constraints) {
+  if (constraints.maxWidth < 600)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+            width: 50,
+            height: 35,
+            child: IconButton(
+                style: ButtonStyle(
+                  overlayColor:
+                      MaterialStateProperty.all(Colors.transparent),
+                ),
+                onPressed: () => {
+                      setState(() {
+                        DroweAberto = !DroweAberto;
+                      })
+                    },
+                icon: Icon(Icons.menu))),
+        Stack(
+          children: [
+            ConteudoTela(setState)
+            if (DroweAberto)
+              Container(
+                width: WindowWidth,
+                height: WindowHeight - 35,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [
+                    Colors.black,
+                    Colors.black,
+                    Colors.transparent,
+                  ], stops: [
+                    0,
+                    .5,
+                    1
+                  ]),
+                ),
+                padding: EdgeInsets.only(right: WindowWidth * .5),
+                child:NavBar(WindowWidth, WindowHeight-55, setState, EnviarParaInicio),,
+              )
+          ],
+        )
+      ],
+    );
+  else
+    return Row(children: [
+      NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio),
+  ConteudoTela(setState),
+    ]);
+}));
+
+*/
+
+Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
+  return GlassContainer(
+      Cor: Color.fromRGBO(255, 255, 255, 1),
+      Width: (WindowWidth * .2),
+      MinWidth: 200,
+      Height: 0,
+      Child: Column(
         children: [
-          GlassContainer(
-              Cor: Color.fromRGBO(255, 255, 255, 1),
-              Width: (WindowWidth * .2),
-              MinWidth: 200,
-              Height: 0,
-              Child: Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                        padding: EdgeInsets.only(right: 10),
-                        children: Paginas.map((e) => TextButton(
-                            onPressed: () => {
-                                  setState(() {
-                                    ShowPage = e;
-                                  })
-                                },
-                            style: ButtonStyle(
-                              overlayColor:
-                                  MaterialStateProperty.all(Colors.transparent),
-                            ),
-                            child: GlassContainer(
-                              Cor: e != ShowPage
-                                  ? Color.fromRGBO(255, 255, 255, 1)
-                                  : Color.fromRGBO(173, 99, 173, 1),
-                              Width: 0,
-                              Rotate: 7,
-                              MinWidth: 0,
-                              Height: 35,
-                              Child: Center(
-                                child: Text(
-                                  e,
-                                  style: TextStyle(
-                                    color: Color.fromRGBO(255, 255, 255, 1),
-                                  ),
-                                ),
-                              ),
-                            ))).toList()),
-                  ),
-                  TextButton(
-                    onPressed: EnviarParaInicio,
+          Expanded(
+            child: ListView(
+                padding: EdgeInsets.only(right: 10),
+                children: Paginas.map((e) => TextButton(
+                    onPressed: () => {
+                          setState(() {
+                            ShowPage = e;
+                          })
+                        },
                     style: ButtonStyle(
                       overlayColor:
                           MaterialStateProperty.all(Colors.transparent),
                     ),
                     child: GlassContainer(
-                      Cor: Color.fromRGBO(255, 255, 255, 1),
-                      Width: (WindowWidth * .2),
-                      MinWidth: 200,
+                      Cor: e != ShowPage
+                          ? Color.fromRGBO(255, 255, 255, 1)
+                          : Color.fromRGBO(173, 99, 173, 1),
+                      Width: 0,
                       Rotate: 7,
+                      MinWidth: 0,
                       Height: 35,
                       Child: Center(
                         child: Text(
-                          "VOLTAR",
+                          e,
                           style: TextStyle(
-                              color: Color.fromRGBO(255, 255, 255, 1)),
+                            color: Color.fromRGBO(255, 255, 255, 1),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              )),
-          if (ShowPage == "HORARIOS")
-            HorarioScreen()
-          else if (ShowPage == "AGENDAMENTOS")
-            AgendamentoScreen(
-                EnviarParaNovoAgendamento: () => {
-                      setState(() {
-                        ShowPage = "NOVOAGENDAMENTO";
-                      })
-                    })
-          else if (ShowPage == "NOVOAGENDAMENTO")
-            NovoAgendamentoScreen()
-          else
-            Text("DEU BO AQ")
+                    ))).toList()),
+          ),
+          TextButton(
+            onPressed: EnviarParaInicio,
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+            ),
+            child: GlassContainer(
+              Cor: Color.fromRGBO(255, 255, 255, 1),
+              Width: (WindowWidth * .2),
+              MinWidth: 200,
+              Rotate: 7,
+              Height: 35,
+              Child: Center(
+                child: Text(
+                  "VOLTAR",
+                  style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
+                ),
+              ),
+            ),
+          ),
         ],
-      ),
-    );
-  }
+      ));
+}
+
+Widget ConteudoTela(setState) {
+  return ShowPage == "HORARIOS"
+      ? HorarioScreen()
+      : ShowPage == "AGENDAMENTOS"
+          ? AgendamentoScreen(
+              EnviarParaNovoAgendamento: () => {
+                    setState(() {
+                      ShowPage = "NOVOAGENDAMENTO";
+                    })
+                  })
+          : ShowPage == "NOVOAGENDAMENTO"
+              ? NovoAgendamentoScreen()
+              : Text("DEU BO AQ");
 }

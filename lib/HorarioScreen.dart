@@ -120,69 +120,6 @@ class StateHorarioScreen extends State<HorarioScreen> {
   }
 }
 
-/*
-
-
-
-
-body: LayoutBuilder(builder: (context, constraints) {
-          if (constraints.maxWidth < 600)
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                    width: 50,
-                    height: 35,
-                    child: IconButton(
-                        style: ButtonStyle(
-                          overlayColor:
-                              MaterialStateProperty.all(Colors.transparent),
-                        ),
-                        onPressed: () => {
-                              setState(() {
-                                DroweAberto = !DroweAberto;
-                              })
-                            },
-                        icon: Icon(Icons.menu))),
-                Stack(
-                  children: [
-                    ConteudoTela(WindowWidth, WindowHeight - 55,
-                        EnviarParaConfigs, EnviarParaHorarios, true),
-                    if (DroweAberto)
-                      Container(
-                        width: WindowWidth,
-                        height: WindowHeight - 35,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            Colors.black,
-                            Colors.black,
-                            Colors.transparent,
-                          ], stops: [
-                            0,
-                            .5,
-                            1
-                          ]),
-                        ),
-                        padding: EdgeInsets.only(right: WindowWidth * .5),
-                        child: NavBar(WindowWidth, WindowHeight, setState,
-                            EnviarParaConfigs),
-                      )
-                  ],
-                )
-              ],
-            );
-          else
-            return Row(children: [
-              NavBar(WindowWidth, WindowHeight, setState, EnviarParaConfigs),
-              ConteudoTela(WindowWidth, WindowHeight, EnviarParaConfigs,
-                  EnviarParaHorarios, false),
-            ]);
-        }));
-  }
-}
-
-*/
-
 Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
   return GlassContainer(
     Cor: Color.fromRGBO(255, 255, 255, 1),
