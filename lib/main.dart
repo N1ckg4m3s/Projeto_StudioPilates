@@ -1,3 +1,5 @@
+import 'package:app_pilates/ConfigScreen/ConfScreenMain.dart';
+import 'package:app_pilates/HorarioScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/WeekScreen.dart';
 import 'Controle/GerarDataTeste.dart';
@@ -13,6 +15,8 @@ class MyApp extends StatelessWidget {
       initialRoute: "/WeekScreen",
       routes: {
         "/WeekScreen": (context) => const WeekScreen(),
+        "/HorarioScreen": (context) => const HorarioScreen(),
+        "/ConfigScreen": (context) => const ConfigScreen(),
       },
     );
   }

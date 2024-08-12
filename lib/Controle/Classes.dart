@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names
+// ignore_for_file: file_names, non_constant_identifier_names, camel_case_types
 
 class DiaSemana {
   String Nome;
@@ -46,4 +46,14 @@ class Aluno {
   SetPresenca(bool Valor) {
     Presenca = Valor;
   }
+}
+
+class DataEnvio_Week_Horario {
+  String DiaDaSemana;
+  String HorarioSelecionado;
+
+  DataEnvio_Week_Horario({
+    required this.DiaDaSemana,
+    required this.HorarioSelecionado,
+  });
 }

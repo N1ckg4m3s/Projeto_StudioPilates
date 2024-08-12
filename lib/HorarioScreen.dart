@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unused_element
+// ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unnecessary_brace_in_string_interps, prefer_function_declarations_over_variables, unused_local_variable
 
 import 'package:app_pilates/Controle/Controller.dart';
 
@@ -14,27 +14,47 @@ final List<String> InfoNavBar = [
   "SEXTA-FEIRA",
 ];
 
-class WeekScreen extends StatefulWidget {
-  const WeekScreen({super.key});
+class HorarioScreen extends StatefulWidget {
+  const HorarioScreen({super.key});
 
   @override
-  StateWeekScreen createState() => StateWeekScreen();
+  StateHorarioScreen createState() => StateHorarioScreen();
 }
 
-String TopicoSelecionado = "SEGUNDA-FEIRA";
+String DiaSemanaSelecionado = "SEGUNDA-FEIRA";
+String TopicoSelecionado = "06:00";
 DiaSemana? Dia;
 
-class StateWeekScreen extends State<WeekScreen> {
+class StateHorarioScreen extends State<HorarioScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Inicialização padrão
+    Dia = Controller().Obter_Dia_porString('SEGUNDA-FEIRA');
+    TopicoSelecionado = "07:00";
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Tentando obter os argumentos da navegação
+    final arguments = ModalRoute.of(context)?.settings.arguments;
+
+    if (arguments is DataEnvio_Week_Horario) {
+      Dia = Controller().Obter_Dia_porString(arguments.DiaDaSemana);
+      TopicoSelecionado = arguments.HorarioSelecionado;
+    } else {
+      // Fallback para valores padrão
+      Dia = Controller().Obter_Dia_porString('SEGUNDA-FEIRA');
+      TopicoSelecionado = Dia!.Horarios.first.Hora;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    EnviarParaHorarios(String HoraSelec) => {
-          Navigator.pushNamed(context, "/HorarioScreen",
-              arguments: DataEnvio_Week_Horario(
-                  DiaDaSemana: TopicoSelecionado,
-                  HorarioSelecionado: HoraSelec))
-        };
-    EnviarParaConfigs() => {Navigator.pushNamed(context, "/ConfigScreen")};
-    Dia = Controller().Obter_Dia_porString(TopicoSelecionado);
+    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
+
     var WindowWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Color.fromRGBO(55, 46, 46, 1),
@@ -50,12 +70,12 @@ class StateWeekScreen extends State<WeekScreen> {
                   Expanded(
                     child: ListView(
                       padding: EdgeInsets.only(right: 10),
-                      children: InfoNavBar.map((e) {
+                      children: Dia!.Horarios.map((e) {
                         return TextButton(
                             onPressed: () => {
                                   setState(
                                     () {
-                                      TopicoSelecionado = e;
+                                      TopicoSelecionado = e.Hora;
                                     },
                                   )
                                 },
@@ -64,7 +84,7 @@ class StateWeekScreen extends State<WeekScreen> {
                                   MaterialStateProperty.all(Colors.transparent),
                             ),
                             child: GlassContainer(
-                              Cor: (TopicoSelecionado != (e)
+                              Cor: (TopicoSelecionado != (e.Hora)
                                   ? Color.fromRGBO(255, 255, 255, 1)
                                   : Color.fromRGBO(173, 99, 173, 1)),
                               Width: 0,
@@ -73,9 +93,9 @@ class StateWeekScreen extends State<WeekScreen> {
                               Height: 35,
                               Child: Center(
                                 child: Text(
-                                  e,
+                                  e.Hora,
                                   style: TextStyle(
-                                    color: (TopicoSelecionado != (e)
+                                    color: (TopicoSelecionado != (e.Hora)
                                         ? Color.fromRGBO(255, 255, 255, 1)
                                         : Color.fromRGBO(173, 99, 173, 1)),
                                   ),
@@ -86,7 +106,7 @@ class StateWeekScreen extends State<WeekScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: EnviarParaConfigs,
+                    onPressed: EnviarParaInicio,
                     style: ButtonStyle(
                       overlayColor:
                           MaterialStateProperty.all(Colors.transparent),
@@ -99,28 +119,7 @@ class StateWeekScreen extends State<WeekScreen> {
                       Height: 35,
                       Child: Center(
                         child: Text(
-                          "CONFIGURAÇÕES",
-                          style: TextStyle(
-                              color: Color.fromRGBO(255, 255, 255, 1)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => {},
-                    style: ButtonStyle(
-                      overlayColor:
-                          MaterialStateProperty.all(Colors.transparent),
-                    ),
-                    child: GlassContainer(
-                      Cor: Color.fromRGBO(255, 255, 255, 1),
-                      Width: (WindowWidth * .2),
-                      MinWidth: 200,
-                      Rotate: 7,
-                      Height: 35,
-                      Child: Center(
-                        child: Text(
-                          "RELATORIO SEMANAL",
+                          "VOLTAR",
                           style: TextStyle(
                               color: Color.fromRGBO(255, 255, 255, 1)),
                         ),
@@ -138,7 +137,7 @@ class StateWeekScreen extends State<WeekScreen> {
             Child: Column(
               children: [
                 Text(
-                  TopicoSelecionado,
+                  '${DiaSemanaSelecionado} ${TopicoSelecionado}',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 25,
@@ -146,37 +145,38 @@ class StateWeekScreen extends State<WeekScreen> {
                 ),
                 Expanded(
                   child: ListView(
-                    children: Dia!.Horarios.map(
+                    children: Dia!.Horarios
+                        .firstWhere(
+                            (element) => element.Hora == TopicoSelecionado)
+                        .Alunos
+                        .map(
                       (e) {
                         return TextButton(
-                          onPressed: () => {EnviarParaHorarios(e.Hora)},
+                          onPressed: () => {
+                            setState(() {
+                              e.SetPresenca(!e.Presenca);
+                            })
+                          },
                           style: ButtonStyle(
                             overlayColor:
                                 MaterialStateProperty.all(Colors.transparent),
                           ),
                           child: GlassContainer(
-                            Cor: Color.fromRGBO(255, 255, 255, 1),
+                            Cor: e.Presenca
+                                ? Color.fromRGBO(12, 255, 32, 1)
+                                : Color.fromRGBO(255, 255, 255, 1),
                             Rotate: 20,
                             Width: 0,
                             Height: 55,
                             Child: Center(
-                              child: Column(
-                                children: [
-                                  Text(
-                                    e.Hora,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  Text(
-                                    e.ObterPessoas(),
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
+                              child: Text(
+                                e.Nome,
+                                style: TextStyle(
+                                  color: e.Presenca
+                                      ? Color.fromRGBO(12, 255, 32, 1)
+                                      : Color.fromRGBO(255, 255, 255, 1),
+                                  fontSize: 20,
+                                ),
                               ),
                             ),
                           ),
