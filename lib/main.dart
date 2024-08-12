@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       initialRoute: "/WeekScreen",
       routes: {
         "/WeekScreen": (context) => const WeekScreen(), // 500
-        "/HorarioScreen": (context) => const HorarioScreen(), //
+        "/HorarioScreen": (context) => const HorarioScreen(), // 500
         "/ConfigScreen": (context) => const ConfigScreen(), //
       },
     );
