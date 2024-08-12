@@ -2,6 +2,7 @@
 import 'Classes.dart';
 
 final List<DiaSemana> Data = [];
+Configuracoes ConfiguracoesBasicas = Configuracoes();
 
 class Controller {
   //Essa função é para adicionar um horario a um dia da semana
@@ -34,5 +35,13 @@ class Controller {
       orElse: () => throw Exception('Dia da semana não encontrado'),
     );
     return diaSemana;
+  }
+
+  DefinirConfiguracoes(Configuracoes Config) {
+    ConfiguracoesBasicas = Config;
+  }
+
+  Configuracoes ObterConfiguracoes() {
+    return ConfiguracoesBasicas;
   }
 }

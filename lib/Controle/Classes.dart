@@ -57,3 +57,8 @@ class DataEnvio_Week_Horario {
     required this.HorarioSelecionado,
   });
 }
+
+class Configuracoes {
+  List<int> HorasTrabalhadas = [6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20];
+  int LimiteAulasPorHorario = 4;
+}
