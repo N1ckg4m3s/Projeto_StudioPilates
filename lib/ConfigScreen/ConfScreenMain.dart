@@ -16,7 +16,7 @@ class ConfigScreen extends StatefulWidget {
 
 final List<String> Paginas = ["HORARIOS", "AGENDAMENTOS"];
 String ShowPage = "NOVOAGENDAMENTO";
-bool DroweAberto = true;
+bool DroweAberto = false;
 
 class ConfigScreenState extends State<ConfigScreen> {
   @override

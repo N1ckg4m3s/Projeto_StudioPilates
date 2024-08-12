@@ -124,12 +124,15 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   Widget build(BuildContext context) {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
     var WindowWidth = MediaQuery.of(context).size.width;
+    var WindowHeight = MediaQuery.of(context).size.height;
     return GlassContainer(
       Cor: Color.fromRGBO(255, 255, 255, 1),
-      Width: (WindowWidth * .2) >= 200
-          ? (WindowWidth * .8) - 30
-          : (WindowWidth - 230),
-      Height: 0,
+      Width: WindowWidth > 601
+          ? (WindowWidth * .2) >= 200
+              ? (WindowWidth * .8) - 30
+              : (WindowWidth - 230)
+          : WindowWidth - 20,
+      Height: WindowHeight - 55,
       Child: Column(
         children: [
           Center(
@@ -193,7 +196,11 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                                 child: GridView(
                                   gridDelegate:
                                       SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 4,
+                                          crossAxisCount: WindowWidth > 950
+                                              ? 4
+                                              : WindowWidth > 780
+                                                  ? 3
+                                                  : 2,
                                           mainAxisExtent: 130),
                                   children: D.Horarios.map(
                                     (e) => TextButton(

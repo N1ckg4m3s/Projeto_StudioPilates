@@ -17,6 +17,7 @@ class HorarioScreenState extends State<HorarioScreen> {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
 
     var WindowWidth = MediaQuery.of(context).size.width;
+    var WindowHeight = MediaQuery.of(context).size.height;
 
     var QuantidadeItens = WindowWidth > 850
         ? 5
@@ -28,10 +29,12 @@ class HorarioScreenState extends State<HorarioScreen> {
 
     return GlassContainer(
       Cor: Color.fromRGBO(255, 255, 255, 1),
-      Width: (WindowWidth * .2) >= 200
-          ? (WindowWidth * .8) - 30
-          : (WindowWidth - 230),
-      Height: 0,
+      Width: WindowWidth > 601
+          ? (WindowWidth * .2) >= 200
+              ? (WindowWidth * .8) - 30
+              : (WindowWidth - 230)
+          : WindowWidth - 20,
+      Height: WindowHeight - 55,
       Child: Column(
         children: [
           Center(
