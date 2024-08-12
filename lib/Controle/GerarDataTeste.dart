@@ -21,18 +21,16 @@ List<DiaSemana> gerarDadosTeste() {
     "10:00",
     "11:00",
     "12:00",
-    "13:00"
-  ];
-
-  final List<String> nomesAlunos = [
-    "Ana",
-    "Carlos",
-    "João",
-    "Maria",
-    "Pedro",
-    "Lucas",
-    "Fernanda",
-    "Laura"
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00",
+    "21:00",
+    "22:00"
   ];
 
   Random random = Random();
@@ -43,8 +41,10 @@ List<DiaSemana> gerarDadosTeste() {
     List<Horario> horarios = [];
     for (var hora in horariosFixos) {
       List<Aluno> alunos = [];
-      for (int j = 0; j < 4; j++) {
-        String nome = nomesAlunos[random.nextInt(nomesAlunos.length)];
+      int Rand = random.nextInt(10);
+      for (int j = 0; j < (Rand >= 4 ? 4 : Rand); j++) {
+        String nome =
+            'Pessoa_${random.nextInt(50)}'; // nomesAlunos[random.nextInt(nomesAlunos.length)];
         alunos.add(Aluno(Nome: nome, Presenca: false));
       }
       horarios.add(Horario(Hora: hora, Alunos: alunos));

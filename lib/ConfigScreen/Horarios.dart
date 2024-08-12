@@ -100,12 +100,3 @@ class HorarioScreenState extends State<HorarioScreen> {
     );
   }
 }
-
-/*
-GlassContainer(
-  Width: 10,
-  Height: 10,
-  Cor: Color.fromRGBO(255, 255, 255, 1),
-  Child: Text('$index'),
-)
-*/

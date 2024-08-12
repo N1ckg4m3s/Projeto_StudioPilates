@@ -146,10 +146,13 @@ class StateWeekScreen extends State<WeekScreen> {
                 ),
                 Expanded(
                   child: ListView(
-                    children: Dia!.Horarios.map(
+                    children:
+                        Controller().ObterConfiguracoes().HorasTrabalhadas.map(
                       (e) {
                         return TextButton(
-                          onPressed: () => {EnviarParaHorarios(e.Hora)},
+                          onPressed: () => {
+                            EnviarParaHorarios('${e <= 9 ? ('0$e') : e}:00')
+                          },
                           style: ButtonStyle(
                             overlayColor:
                                 MaterialStateProperty.all(Colors.transparent),
@@ -163,14 +166,18 @@ class StateWeekScreen extends State<WeekScreen> {
                               child: Column(
                                 children: [
                                   Text(
-                                    e.Hora,
+                                    '${e <= 9 ? ('0$e') : e}:00',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
                                     ),
                                   ),
                                   Text(
-                                    e.ObterPessoas(),
+                                    Controller()
+                                        .Obter_Alunos_Horarios_e_Dia(
+                                            TopicoSelecionado,
+                                            '${e <= 9 ? ('0$e') : e}:00')
+                                        .ObterPessoas(),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 15,

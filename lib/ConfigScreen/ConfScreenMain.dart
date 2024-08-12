@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names
 
+import 'package:app_pilates/ConfigScreen/NovoAgendamento.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 
@@ -14,7 +15,7 @@ class ConfigScreen extends StatefulWidget {
 }
 
 final List<String> Paginas = ["HORARIOS", "AGENDAMENTOS"];
-String ShowPage = "HORARIOS";
+String ShowPage = "NOVOAGENDAMENTO";
 
 class ConfigScreenState extends State<ConfigScreen> {
   @override
@@ -90,7 +91,14 @@ class ConfigScreenState extends State<ConfigScreen> {
           if (ShowPage == "HORARIOS")
             HorarioScreen()
           else if (ShowPage == "AGENDAMENTOS")
-            AgendamentoScreen()
+            AgendamentoScreen(
+                EnviarParaNovoAgendamento: () => {
+                      setState(() {
+                        ShowPage = "NOVOAGENDAMENTO";
+                      })
+                    })
+          else if (ShowPage == "NOVOAGENDAMENTO")
+            NovoAgendamentoScreen()
           else
             Text("DEU BO AQ")
         ],

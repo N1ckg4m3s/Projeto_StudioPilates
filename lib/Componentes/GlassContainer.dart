@@ -35,9 +35,9 @@ class GlassContainer extends StatelessWidget {
       height: Height == 0 ? double.maxFinite : Height,
       constraints: BoxConstraints(
         maxHeight: MaxHeight ?? double.maxFinite,
-        minHeight: MinHeight ?? 0,
+        minHeight: MinHeight ?? double.minPositive,
         maxWidth: MaxWidth ?? double.maxFinite,
-        minWidth: MinWidth ?? 0,
+        minWidth: MinWidth ?? double.minPositive,
       ),
       margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
       decoration: BoxDecoration(
