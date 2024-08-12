@@ -10,13 +10,14 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    print(MediaQuery.of(context).size.width);
     gerarDadosTeste();
     return MaterialApp(
       initialRoute: "/WeekScreen",
       routes: {
-        "/WeekScreen": (context) => const WeekScreen(),
-        "/HorarioScreen": (context) => const HorarioScreen(),
-        "/ConfigScreen": (context) => const ConfigScreen(),
+        "/WeekScreen": (context) => const WeekScreen(), // 500
+        "/HorarioScreen": (context) => const HorarioScreen(), //
+        "/ConfigScreen": (context) => const ConfigScreen(), //
       },
     );
   }

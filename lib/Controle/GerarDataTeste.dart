@@ -44,7 +44,7 @@ List<DiaSemana> gerarDadosTeste() {
       int Rand = random.nextInt(10);
       for (int j = 0; j < (Rand >= 4 ? 4 : Rand); j++) {
         String nome =
-            'Pessoa_${random.nextInt(50)}'; // nomesAlunos[random.nextInt(nomesAlunos.length)];
+            'Sebastião Pereira'; // nomesAlunos[random.nextInt(nomesAlunos.length)];
         alunos.add(Aluno(Nome: nome, Presenca: false));
       }
       horarios.add(Horario(Hora: hora, Alunos: alunos));

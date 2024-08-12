@@ -17,6 +17,15 @@ class HorarioScreenState extends State<HorarioScreen> {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
 
     var WindowWidth = MediaQuery.of(context).size.width;
+
+    var QuantidadeItens = WindowWidth > 850
+        ? 5
+        : WindowWidth > 700
+            ? 3
+            : WindowWidth > 600
+                ? 5
+                : 4;
+
     return GlassContainer(
       Cor: Color.fromRGBO(255, 255, 255, 1),
       Width: (WindowWidth * .2) >= 200
@@ -34,7 +43,7 @@ class HorarioScreenState extends State<HorarioScreen> {
           Expanded(
             child: GridView(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 5, mainAxisExtent: 75),
+                  crossAxisCount: QuantidadeItens, mainAxisExtent: 75),
               children: List.generate(
                   17,
                   (index) => TextButton(
