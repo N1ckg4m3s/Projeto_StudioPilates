@@ -1,7 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unused_element, curly_braces_in_flow_control_structures
 
 import 'package:app_pilates/Controle/Controller.dart';
-import 'package:flutter/widgets.dart';
 
 import 'Controle/Classes.dart';
 import 'package:flutter/material.dart';

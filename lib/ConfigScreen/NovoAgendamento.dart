@@ -13,12 +13,16 @@ class NovoAgendamentoScreen extends StatefulWidget {
   NovoAgendamentoScreenState createState() => NovoAgendamentoScreenState();
 }
 
+List<String> ListaRegimes = ["Mensal", "Bimestral", "TriMestral"];
+
 String VendoDiaSemana = "";
 final TextEditingController _controller = TextEditingController();
 final TextEditingController _controllerAnotacao = TextEditingController();
 final TextEditingController _controllerData = TextEditingController();
 final TextEditingController _controllerRegime =
-    TextEditingController(text: '1');
+    TextEditingController(text: 'Mensal');
+
+int EtapaAtual = 1;
 
 class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   List<DataEnvio_Week_Horario> HorariosSelecionados = [];
@@ -72,20 +76,31 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     );
   }
 
+  void ProximaEtapa() {
+    if (EtapaAtual == 0) {
+      if (_controller.text.isEmpty) {
+        MsgErro("Esqueceu do nome");
+        return;
+      }
+      if (HorariosSelecionados.length < 2) {
+        MsgErro("Esqueceu de adicionar dia da semana");
+        return;
+      }
+      setState(() {
+        EtapaAtual += 1;
+      });
+    } else if (EtapaAtual == 1) {
+      if (_controllerData.text.isEmpty) {
+        MsgErro("Esqueceu da data de registro");
+        return;
+      }
+      _controllerRegime.text =
+          '${ListaRegimes.indexOf(_controllerRegime.text) + 1}';
+      SalvarNovoAgendamento();
+    }
+  }
+
   void SalvarNovoAgendamento() {
-    if (_controller.text.isEmpty) {
-      MsgErro("Esqueceu do nome");
-      return;
-    }
-    if (HorariosSelecionados.length < 2) {
-      MsgErro("Esqueceu de adicionar dia da semana");
-      return;
-    }
-    if (_controllerData.text.isEmpty) {
-      MsgErro("Esqueceu da data de registro");
-      return;
-    }
-    print('Novo agendamento');
     List<Hora> HorasPraPresenca = [];
 
     for (var element in HorariosSelecionados) {
@@ -178,169 +193,18 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ),
-          Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            width: double.maxFinite,
-            child: TextField(
-              style: TextStyle(color: Colors.white, fontSize: 20),
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: "NOME DA PESSOA",
-                hintStyle: TextStyle(color: Colors.white, fontSize: 20),
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-              ),
-            ),
-          ),
-          Center(
-            child: Text(
-              'HORARIOS LIVRES [${HorariosSelecionados.length}/2]',
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              children: Controller()
-                  .Obter_Dias_Da_Semana()
-                  .map(
-                    (D) => TextButton(
-                      onPressed: () => {
-                        setState(() {
-                          VendoDiaSemana =
-                              VendoDiaSemana == D.Nome ? "" : D.Nome;
-                        })
-                      },
-                      style: ButtonStyle(
-                        overlayColor:
-                            MaterialStateProperty.all(Colors.transparent),
-                      ),
-                      child: GlassContainer(
-                        Cor: Color.fromRGBO(255, 255, 255, 1),
-                        Width: 0,
-                        MaxHeight: DefinirTamanho(D.Horarios.length), //
-                        Height: VendoDiaSemana == D.Nome ? 0 : 40,
-                        Child: Column(
-                          children: [
-                            Text(
-                              D.Nome,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 25),
-                            ),
-                            if (VendoDiaSemana == D.Nome)
-                              Expanded(
-                                child: GridView(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: WindowWidth > 950
-                                              ? 4
-                                              : WindowWidth > 780
-                                                  ? 3
-                                                  : 2,
-                                          mainAxisExtent: 130),
-                                  children: D.Horarios.map(
-                                    (e) => TextButton(
-                                      onPressed: () => {
-                                        setState(
-                                          () {
-                                            if (!CheckSeSelecionado(
-                                                D.Nome, e.Hora)) {
-                                              AdicionarHorario(D.Nome, e.Hora);
-                                            } else {
-                                              RemoverHorario(D.Nome, e.Hora);
-                                            }
-                                          },
-                                        )
-                                      },
-                                      style: ButtonStyle(
-                                        overlayColor: MaterialStateProperty.all(
-                                            Colors.transparent),
-                                      ),
-                                      child: GlassContainer(
-                                        Width: 0,
-                                        Height: 0,
-                                        Cor: !CheckSeSelecionado(D.Nome, e.Hora)
-                                            ? Color.fromRGBO(255, 255, 255, 1)
-                                            : Color.fromRGBO(173, 99, 173, 1),
-                                        Child: Column(
-                                          children: [
-                                            Center(
-                                              child: Text(
-                                                e.Hora,
-                                                style: TextStyle(
-                                                    color: !CheckSeSelecionado(
-                                                            D.Nome, e.Hora)
-                                                        ? Color.fromRGBO(
-                                                            255, 255, 255, 1)
-                                                        : Color.fromRGBO(
-                                                            173, 99, 173, 1),
-                                                    fontSize: 15),
-                                              ),
-                                            ),
-                                            Column(
-                                              children: e.IdAlunos.map(
-                                                (e) => Text(
-                                                  AlunosController()
-                                                      .ObterAlunoPorId(e)
-                                                      .GetNome(),
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 15),
-                                                ),
-                                              ).toList(),
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ).toList(),
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
+          if (EtapaAtual == 0)
+            MainSpace(
+                HorariosSelecionados,
+                setState,
+                DefinirTamanho,
+                WindowWidth,
+                CheckSeSelecionado,
+                AdicionarHorario,
+                RemoverHorario),
+          if (EtapaAtual == 1) SegundaEtapa(selectDate, context, setState),
           TextButton(
-            onPressed: () => selectDate(context, _controllerData),
-            style: ButtonStyle(
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
-            ),
-            child: Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                width: double.maxFinite,
-                child: GlassContainer(
-                    Width: 0,
-                    Height: 35,
-                    Child: Center(
-                      child: Text(
-                          'DATA REGISTRO${_controllerData.text.isEmpty ? '' : ' [${DateTime.parse(_controllerData.text).day}/ ${DateTime.parse(_controllerData.text).month}/ ${DateTime.parse(_controllerData.text).year}]'}',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                    Cor: Colors.white)),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 20, right: 20),
-            width: double.maxFinite,
-            child: TextField(
-              style: TextStyle(color: Colors.white, fontSize: 20),
-              controller: _controllerAnotacao,
-              decoration: InputDecoration(
-                hintText: "ANOTAÇÕES",
-                hintStyle: TextStyle(color: Colors.white, fontSize: 20),
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-                focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white)),
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: SalvarNovoAgendamento,
+            onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,
             style: ButtonStyle(
               overlayColor: MaterialStateProperty.all(Colors.transparent),
             ),
@@ -351,7 +215,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
               Height: 40,
               Child: Center(
                 child: Text(
-                  "SALVAR",
+                  EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
                   style: TextStyle(
                       color: Color.fromRGBO(12, 255, 32, 1), fontSize: 15),
                 ),
@@ -364,8 +228,213 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   }
 }
 
-/*
-CheckSeSelecionado(D.Nome, e.Hora)?
-  Color.fromRGBO(255, 255, 255, 1):
-  Color.fromRGBO(173, 99, 173, 1),
-*/
+Widget MainSpace(HorariosSelecionados, setState, DefinirTamanho, WindowWidth,
+    CheckSeSelecionado, AdicionarHorario, RemoverHorario) {
+  return Expanded(
+      child: Column(
+    children: [
+      Container(
+        margin: EdgeInsets.only(left: 20, right: 20),
+        width: double.maxFinite,
+        child: TextField(
+          style: TextStyle(color: Colors.white, fontSize: 20),
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: "NOME DA PESSOA",
+            hintStyle: TextStyle(color: Colors.white, fontSize: 20),
+            enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white)),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white)),
+          ),
+        ),
+      ),
+      Center(
+        child: Text(
+          'HORARIOS LIVRES [${HorariosSelecionados.length}/2]',
+          style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+      ),
+      Expanded(
+        child: ListView(
+          children: Controller()
+              .Obter_Dias_Da_Semana()
+              .map(
+                (D) => TextButton(
+                  onPressed: () => {
+                    setState(() {
+                      VendoDiaSemana = VendoDiaSemana == D.Nome ? "" : D.Nome;
+                    })
+                  },
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                  ),
+                  child: GlassContainer(
+                    Cor: Color.fromRGBO(255, 255, 255, 1),
+                    Width: 0,
+                    MaxHeight: DefinirTamanho(D.Horarios.length), //
+                    Height: VendoDiaSemana == D.Nome ? 0 : 40,
+                    Child: Column(
+                      children: [
+                        Text(
+                          D.Nome,
+                          style: TextStyle(color: Colors.white, fontSize: 25),
+                        ),
+                        if (VendoDiaSemana == D.Nome)
+                          Expanded(
+                            child: GridView(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: WindowWidth > 950
+                                          ? 4
+                                          : WindowWidth > 780
+                                              ? 3
+                                              : 2,
+                                      mainAxisExtent: 130),
+                              children: D.Horarios.map(
+                                (e) => TextButton(
+                                  onPressed: () => {
+                                    setState(
+                                      () {
+                                        if (!CheckSeSelecionado(
+                                            D.Nome, e.Hora)) {
+                                          AdicionarHorario(D.Nome, e.Hora);
+                                        } else {
+                                          RemoverHorario(D.Nome, e.Hora);
+                                        }
+                                      },
+                                    )
+                                  },
+                                  style: ButtonStyle(
+                                    overlayColor: MaterialStateProperty.all(
+                                        Colors.transparent),
+                                  ),
+                                  child: GlassContainer(
+                                    Width: 0,
+                                    Height: 0,
+                                    Cor: !CheckSeSelecionado(D.Nome, e.Hora)
+                                        ? Color.fromRGBO(255, 255, 255, 1)
+                                        : Color.fromRGBO(173, 99, 173, 1),
+                                    Child: Column(
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            e.Hora,
+                                            style: TextStyle(
+                                                color: !CheckSeSelecionado(
+                                                        D.Nome, e.Hora)
+                                                    ? Color.fromRGBO(
+                                                        255, 255, 255, 1)
+                                                    : Color.fromRGBO(
+                                                        173, 99, 173, 1),
+                                                fontSize: 15),
+                                          ),
+                                        ),
+                                        Column(
+                                          children: e.IdAlunos.map(
+                                            (e) => Text(
+                                              AlunosController()
+                                                  .ObterAlunoPorId(e)
+                                                  .GetNome(),
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 15),
+                                            ),
+                                          ).toList(),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ).toList(),
+                            ),
+                          )
+                      ],
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ),
+    ],
+  ));
+}
+
+Widget SegundaEtapa(selectDate, context, setState) {
+  return Expanded(
+    child: Column(
+      children: [
+        TextButton(
+          onPressed: () => selectDate(context, _controllerData),
+          style: ButtonStyle(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+          child: Container(
+              margin: EdgeInsets.only(left: 20, right: 20),
+              width: double.maxFinite,
+              child: GlassContainer(
+                  Width: 0,
+                  Height: 35,
+                  Child: Center(
+                    child: Text(
+                        'DATA REGISTRO${_controllerData.text.isEmpty ? '' : ' [${DateTime.parse(_controllerData.text).day}/ ${DateTime.parse(_controllerData.text).month}/ ${DateTime.parse(_controllerData.text).year}]'}',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+                  Cor: Colors.white)),
+        ),
+        Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          width: double.maxFinite,
+          child: TextField(
+            style: TextStyle(color: Colors.white, fontSize: 20),
+            controller: _controllerAnotacao,
+            decoration: InputDecoration(
+              hintText: "ANOTAÇÕES",
+              hintStyle: TextStyle(color: Colors.white, fontSize: 20),
+              enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white)),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white)),
+            ),
+          ),
+        ),
+        GlassContainer(
+          Width: 0,
+          Height: 100,
+          Cor: Colors.transparent,
+          Child: GridView(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  mainAxisExtent: 75, crossAxisCount: 3),
+              children: ListaRegimes.map((e) => TextButton(
+                    onPressed: () => setState(() {
+                      _controllerRegime.text = e;
+                    }),
+                    style: ButtonStyle(
+                      overlayColor:
+                          MaterialStateProperty.all(Colors.transparent),
+                    ),
+                    child: Container(
+                        margin: EdgeInsets.only(left: 20, right: 20),
+                        width: double.maxFinite,
+                        child: GlassContainer(
+                          Width: 0,
+                          Height: 35,
+                          Child: Center(
+                            child: Text(e,
+                                style: TextStyle(
+                                  color: _controllerRegime.text != e
+                                      ? Color.fromRGBO(255, 255, 255, 1)
+                                      : Color.fromRGBO(173, 99, 173, 1),
+                                )),
+                          ),
+                          Cor: _controllerRegime.text != e
+                              ? Color.fromRGBO(255, 255, 255, 1)
+                              : Color.fromRGBO(173, 99, 173, 1),
+                        )),
+                  )).toList()),
+        )
+      ],
+    ),
+  );
+}
