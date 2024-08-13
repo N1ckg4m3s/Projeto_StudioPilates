@@ -1,5 +1,6 @@
-// ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unnecessary_brace_in_string_interps, prefer_function_declarations_over_variables, unused_local_variable, curly_braces_in_flow_control_structures
+// ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unnecessary_brace_in_string_interps, prefer_function_declarations_over_variables, unused_local_variable, curly_braces_in_flow_control_structures, dead_code
 
+import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Controller.dart';
 
 import 'Controle/Classes.dart';
@@ -66,7 +67,8 @@ class StateHorarioScreen extends State<HorarioScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
+                Container(
+                    margin: EdgeInsets.only(top: 20),
                     width: 50,
                     height: 35,
                     child: IconButton(
@@ -212,20 +214,24 @@ Widget ConteudoTela(WindowWidth, WindowHeight, setState, bool Tamanho) {
           child: ListView(
             children: Dia!.Horarios
                 .firstWhere((element) => element.Hora == TopicoSelecionado)
-                .Alunos
+                .IdAlunos
                 .map(
               (e) {
                 return TextButton(
                   onPressed: () => {
                     setState(() {
-                      e.SetPresenca(!e.Presenca);
+                      AlunosController()
+                          .ObterAlunoPorId(e)
+                          .SetPresenca(TopicoSelecionado);
                     })
                   },
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.all(Colors.transparent),
                   ),
                   child: GlassContainer(
-                    Cor: e.Presenca
+                    Cor: AlunosController()
+                            .ObterAlunoPorId(e)
+                            .GetPresenca(TopicoSelecionado) // PRESENÇA
                         ? Color.fromRGBO(12, 255, 32, 1)
                         : Color.fromRGBO(255, 255, 255, 1),
                     Rotate: 20,
@@ -233,9 +239,11 @@ Widget ConteudoTela(WindowWidth, WindowHeight, setState, bool Tamanho) {
                     Height: 55,
                     Child: Center(
                       child: Text(
-                        e.Nome,
+                        AlunosController().ObterAlunoPorId(e).GetNome(),
                         style: TextStyle(
-                          color: e.Presenca
+                          color: AlunosController()
+                                  .ObterAlunoPorId(e)
+                                  .GetPresenca(TopicoSelecionado)
                               ? Color.fromRGBO(12, 255, 32, 1)
                               : Color.fromRGBO(255, 255, 255, 1),
                           fontSize: 20,

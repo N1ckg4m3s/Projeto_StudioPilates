@@ -1,5 +1,7 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, must_be_immutable, prefer_typing_uninitialized_variables, no_logic_in_create_state
 
+import 'package:app_pilates/Controle/AlunosController.dart';
+import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
@@ -145,10 +147,13 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
                                                       .Obter_Alunos_Horarios_e_Dia(
                                                           VendoDiaSemana,
                                                           '${e <= 9 ? ('0$e') : e}:00')
-                                                      .Alunos
+                                                      .IdAlunos
                                                       .map(
-                                                        (e) => Text(
-                                                          e.Nome,
+                                                        (id) => Text(
+                                                          AlunosController()
+                                                              .ObterAlunoPorId(
+                                                                  id)
+                                                              .GetNome(),
                                                           style: TextStyle(
                                                               color:
                                                                   Colors.white,

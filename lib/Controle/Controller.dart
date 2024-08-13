@@ -4,7 +4,7 @@ import 'Classes.dart';
 final List<DiaSemana> Data = [];
 Configuracoes ConfiguracoesBasicas = Configuracoes();
 
-Horario HorarioAntErro = Horario(Hora: "", Alunos: []);
+Horario HorarioAntErro = Horario(Hora: "", IdAlunos: []);
 
 class Controller {
   //Essa função é para adicionar um horario a um dia da semana
@@ -19,7 +19,7 @@ class Controller {
 
   //Essa função é para adicionar um horario a um dia da semana
   Adicionar_Horario_No_Dia(DiaSemana DiaSemana, String Hora) {
-    DiaSemana.Horarios.add(Horario(Hora: Hora, Alunos: []));
+    DiaSemana.Horarios.add(Horario(Hora: Hora, IdAlunos: []));
   }
 
   //Essa função é para obter todas os horarios e as pessoas do dia da semana determinado
@@ -38,7 +38,7 @@ class Controller {
       );
 
       for (var horario in diaSemana.Horarios) {
-        if (horario.Alunos.length < Configuracoes().LimiteAulasPorHorario) {
+        if (horario.IdAlunos.length < Configuracoes().LimiteAulasPorHorario) {
           diaSemanaLivre.Horarios.add(horario);
         }
       }

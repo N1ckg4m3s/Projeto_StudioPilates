@@ -46,7 +46,8 @@ class StateWeekScreen extends State<WeekScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
+                Container(
+                    margin: EdgeInsets.only(top: 20),
                     width: 50,
                     height: 35,
                     child: IconButton(
@@ -62,7 +63,7 @@ class StateWeekScreen extends State<WeekScreen> {
                         icon: Icon(Icons.menu))),
                 Stack(
                   children: [
-                    ConteudoTela(WindowWidth, WindowHeight - 55,
+                    ConteudoTela(WindowWidth, WindowHeight - 75,
                         EnviarParaConfigs, EnviarParaHorarios, true),
                     if (DroweAberto)
                       Container(
@@ -217,7 +218,7 @@ Widget ConteudoTela(WindowWidth, WindowHeight, EnviarParaConfigs,
                     Cor: Color.fromRGBO(255, 255, 255, 1),
                     Rotate: 20,
                     Width: 0,
-                    Height: 55,
+                    Height: 57,
                     Child: Center(
                       child: Column(
                         children: [

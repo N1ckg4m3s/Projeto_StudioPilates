@@ -1,10 +1,10 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, prefer_function_declarations_over_variables, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, empty_catches
 
+import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
-import 'package:flutter/widgets.dart';
 
 class NovoAgendamentoScreen extends StatefulWidget {
   const NovoAgendamentoScreen({super.key});
@@ -14,9 +14,13 @@ class NovoAgendamentoScreen extends StatefulWidget {
 }
 
 String VendoDiaSemana = "";
+final TextEditingController _controller = TextEditingController();
+final TextEditingController _controllerAnotacao = TextEditingController();
+final TextEditingController _controllerData = TextEditingController();
+final TextEditingController _controllerRegime =
+    TextEditingController(text: '1');
 
 class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
-  final TextEditingController _controller = TextEditingController();
   List<DataEnvio_Week_Horario> HorariosSelecionados = [];
 
   void AdicionarHorario(String DiaDaSemana, String HoraSelecionada) {
@@ -69,22 +73,39 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   }
 
   void SalvarNovoAgendamento() {
-    if (HorariosSelecionados.length < 2) {
-      MsgErro("Esqueceu de adicionar dia da semana");
-      return;
-    }
     if (_controller.text.isEmpty) {
       MsgErro("Esqueceu do nome");
       return;
     }
+    if (HorariosSelecionados.length < 2) {
+      MsgErro("Esqueceu de adicionar dia da semana");
+      return;
+    }
+    if (_controllerData.text.isEmpty) {
+      MsgErro("Esqueceu da data de registro");
+      return;
+    }
+    print('Novo agendamento');
+    List<Hora> HorasPraPresenca = [];
+
+    for (var element in HorariosSelecionados) {
+      HorasPraPresenca.add(
+          Hora(Horario: element.HorarioSelecionado, Presenca: false));
+    }
+    Aluno NovoAluno = AlunosController().AdicionarAluno(Aluno(
+        Id: -1,
+        Nome: _controller.text,
+        PresencaSemana: HorasPraPresenca,
+        Anotacoes: _controllerAnotacao.text,
+        UltimoPagamento: DateTime.parse(_controllerData.text),
+        ModeloNegocios: _controllerRegime.text));
 
     for (var element in HorariosSelecionados) {
       Controller()
           .Obter_Dia_porString(element.DiaDaSemana)
           .Horarios
           .firstWhere((e) => e.Hora == element.HorarioSelecionado)
-          .Alunos
-          .add(Aluno(Nome: _controller.text, Presenca: false));
+          .AdicionarPessoa(NovoAluno.Id);
     }
     _controller.text = "";
     HorariosSelecionados.clear();
@@ -120,6 +141,22 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     return 0;
   }
 
+  Future<void> selectDate(
+      BuildContext context, TextEditingController Contr) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime(2100));
+    if (picked != null && picked != DateTime.now()) {
+      setState(
+        () {
+          Contr.text = '$picked';
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
@@ -132,7 +169,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Height: WindowHeight - 55,
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
       Child: Column(
         children: [
           Center(
@@ -242,9 +279,11 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                                               ),
                                             ),
                                             Column(
-                                              children: e.Alunos.map(
+                                              children: e.IdAlunos.map(
                                                 (e) => Text(
-                                                  e.Nome,
+                                                  AlunosController()
+                                                      .ObterAlunoPorId(e)
+                                                      .GetNome(),
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 15),
@@ -264,6 +303,40 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                     ),
                   )
                   .toList(),
+            ),
+          ),
+          TextButton(
+            onPressed: () => selectDate(context, _controllerData),
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+            ),
+            child: Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                width: double.maxFinite,
+                child: GlassContainer(
+                    Width: 0,
+                    Height: 35,
+                    Child: Center(
+                      child: Text(
+                          'DATA REGISTRO${_controllerData.text.isEmpty ? '' : ' [${DateTime.parse(_controllerData.text).day}/ ${DateTime.parse(_controllerData.text).month}/ ${DateTime.parse(_controllerData.text).year}]'}',
+                          style: TextStyle(color: Colors.white)),
+                    ),
+                    Cor: Colors.white)),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 20, right: 20),
+            width: double.maxFinite,
+            child: TextField(
+              style: TextStyle(color: Colors.white, fontSize: 20),
+              controller: _controllerAnotacao,
+              decoration: InputDecoration(
+                hintText: "ANOTAÇÕES",
+                hintStyle: TextStyle(color: Colors.white, fontSize: 20),
+                enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white)),
+              ),
             ),
           ),
           TextButton(
