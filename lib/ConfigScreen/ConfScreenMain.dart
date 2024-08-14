@@ -1,10 +1,11 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables
 
-import 'package:app_pilates/ConfigScreen/NovoAgendamento.dart';
+import 'package:app_pilates/ConfigScreen/NovoAluno.dart';
+import 'package:app_pilates/Controle/Classes.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 
-import 'Agendamentos.dart';
+import 'Aluno.dart';
 import 'Horarios.dart';
 
 class ConfigScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class ConfigScreen extends StatefulWidget {
 final List<String> Paginas = ["HORARIOS", "ALUNO"];
 String ShowPage = "NOVOAGENDAMENTO";
 bool DroweAberto = false;
+Aluno? DataParaSobre; // = Aluno(Id: -1, Nome: "TESTE SEM DATA");
 
 class ConfigScreenState extends State<ConfigScreen> {
   @override
@@ -150,11 +152,18 @@ Widget ConteudoTela(setState) {
       : ShowPage == "ALUNO"
           ? AgendamentoScreen(
               EnviarParaNovoAgendamento: () => {
-                    setState(() {
-                      ShowPage = "NOVOAGENDAMENTO";
-                    })
-                  })
+                setState(() {
+                  ShowPage = "NOVOAGENDAMENTO";
+                })
+              },
+              EnviarParaSobre: (Aluno Data) => {
+                setState(() {
+                  ShowPage = "NOVOAGENDAMENTO";
+                  DataParaSobre = Data;
+                })
+              },
+            )
           : ShowPage == "NOVOAGENDAMENTO"
-              ? NovoAgendamentoScreen()
+              ? NovoAgendamentoScreen(Data: DataParaSobre)
               : Text("DEU BO AQ");
 }

@@ -1,6 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables, unused_import
 
-import 'package:app_pilates/ConfigScreen/NovoAgendamento.dart';
+import 'package:app_pilates/ConfigScreen/NovoAluno.dart';
 import 'package:app_pilates/RelatorioScreen/FaltasGerais.dart';
 import 'package:app_pilates/RelatorioScreen/Mensalidades.dart';
 import 'package:flutter/material.dart';

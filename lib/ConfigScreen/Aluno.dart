@@ -8,19 +8,30 @@ import 'package:app_pilates/Componentes/GlassContainer.dart';
 
 class AgendamentoScreen extends StatefulWidget {
   var EnviarParaNovoAgendamento;
+  var EnviarParaSobre;
 
-  AgendamentoScreen({super.key, required this.EnviarParaNovoAgendamento});
+  AgendamentoScreen({
+    super.key,
+    required this.EnviarParaNovoAgendamento,
+    required this.EnviarParaSobre,
+  });
 
   @override
   AgendamentoScreenState createState() => AgendamentoScreenState(
-      EnviarParaNovoAgendamento: EnviarParaNovoAgendamento);
+        EnviarParaNovoAgendamento: EnviarParaNovoAgendamento,
+        EnviarParaSobre: EnviarParaSobre,
+      );
 }
 
 String VendoDiaSemana = "SEGUNDA-FEIRA";
 
 class AgendamentoScreenState extends State<AgendamentoScreen> {
   var EnviarParaNovoAgendamento;
-  AgendamentoScreenState({required this.EnviarParaNovoAgendamento});
+  var EnviarParaSobre;
+  AgendamentoScreenState({
+    required this.EnviarParaNovoAgendamento,
+    required this.EnviarParaSobre,
+  });
 
   double ArrumarHeight() {
     var HorasWork = Controller().ObterConfiguracoes().HorasTrabalhadas.length;
@@ -85,7 +96,7 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
             padding: EdgeInsets.only(right: 10),
             children: AlunosController()
                 .ObterAlunos()
-                .map((e) => Card(WindowWidth, e))
+                .map((e) => Card(WindowWidth, e, EnviarParaSobre))
                 .toList(),
           ))
         ],
@@ -94,31 +105,35 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
   }
 }
 
-Widget Card(WindowWidth, Aluno Data) {
-  return GlassContainer(
-      Width: 300,
-      Height: 50,
-      Padding: EdgeInsets.all(10),
-      Cor: Colors.white,
-      Child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+Widget Card(WindowWidth, Aluno Data, EnviarParaSobre) {
+  return TextButton(
+      style: ButtonStyle(
+          overlayColor: MaterialStatePropertyAll(Colors.transparent)),
+      onPressed: () => {EnviarParaSobre(Data)},
+      child: GlassContainer(
+          Width: 300,
+          Height: 64,
+          Padding: EdgeInsets.all(10),
+          Cor: Colors.white,
+          Child: Column(
             children: [
-              Text(
-                Data.GetUltimoPagamentoFormatoYMD(),
-                style: TextStyle(color: Colors.white, fontSize: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    Data.GetUltimoPagamentoFormatoYMD(),
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  ),
+                  Text(
+                    Controller().Gerar_Siglas_Do_Aluno(Data.Id),
+                    style: TextStyle(color: Colors.white, fontSize: 10),
+                  )
+                ],
               ),
               Text(
-                Controller().Gerar_Siglas_Do_Aluno(Data.Id),
-                style: TextStyle(color: Colors.white, fontSize: 10),
+                Data.GetNome().toUpperCase(),
+                style: TextStyle(color: Colors.white, fontSize: 20),
               )
             ],
-          ),
-          Text(
-            Data.GetNome().toUpperCase(),
-            style: TextStyle(color: Colors.white, fontSize: 20),
-          )
-        ],
-      ));
+          )));
 }

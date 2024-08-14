@@ -1,7 +1,5 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_const_literals_to_create_immutables, prefer_const_constructors, file_names
 
-import 'dart:math';
-
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:flutter/material.dart';

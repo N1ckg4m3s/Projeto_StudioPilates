@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, avoid_print
+// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, avoid_print, prefer_typing_uninitialized_variables, must_be_immutable, no_logic_in_create_state
 
 import 'package:app_pilates/Controle/Controller.dart';
 import 'package:flutter/material.dart';

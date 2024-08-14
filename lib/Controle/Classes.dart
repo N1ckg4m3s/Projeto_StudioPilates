@@ -140,7 +140,9 @@ class Aluno {
   }
 
   DateTime GetUltimoPagamento() {
-    return UltimoPagamento!.add(Duration(days: 30));
+    print(ModeloNegocios);
+    return UltimoPagamento!
+        .add(Duration(days: 30 * int.parse(ModeloNegocios!)));
   }
 
   String GetModeloNegocios() {

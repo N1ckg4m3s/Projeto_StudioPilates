@@ -1,5 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, prefer_function_declarations_over_variables, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, empty_catches
-
+// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, prefer_function_declarations_over_variables, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, empty_catches, prefer_typing_uninitialized_variables, no_logic_in_create_state, must_be_immutable
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
@@ -7,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 
 class NovoAgendamentoScreen extends StatefulWidget {
-  const NovoAgendamentoScreen({super.key});
+  var Data;
+  NovoAgendamentoScreen({super.key, required this.Data});
 
   @override
-  NovoAgendamentoScreenState createState() => NovoAgendamentoScreenState();
+  NovoAgendamentoScreenState createState() =>
+      NovoAgendamentoScreenState(Data: Data);
 }
 
 List<String> ListaRegimes = ["Mensal", "Bimestral", "TriMestral"];
@@ -25,7 +26,26 @@ final TextEditingController _controllerRegime =
 int EtapaAtual = 0;
 
 class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
+  var Data;
+  NovoAgendamentoScreenState({required this.Data});
+
   List<DataEnvio_Week_Horario> HorariosSelecionados = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (Data != null) {
+      _controller.text = Data.GetNome();
+      _controllerData.text = '${Data.GetUltimoPagamento()}';
+      _controllerAnotacao.text = Data.GetAnotacoes() ?? "";
+      _controllerRegime.text =
+          ListaRegimes[int.parse(Data.GetModeloNegocios()) - 1];
+      for (var H in Data.PresencaSemana!) {
+        HorariosSelecionados.add(DataEnvio_Week_Horario(
+            DiaDaSemana: H.DiaSemana, HorarioSelecionado: H.Horario));
+      }
+    }
+  }
 
   void AdicionarHorario(String DiaDaSemana, String HoraSelecionada) {
     try {
@@ -102,32 +122,46 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
 
   void SalvarNovoAgendamento() {
     List<Hora> HorasPraPresenca = [];
-
     for (var element in HorariosSelecionados) {
       HorasPraPresenca.add(Hora(
           Horario: element.HorarioSelecionado,
           Presenca: false,
           DiaSemana: element.DiaDaSemana));
     }
-    Aluno NovoAluno = AlunosController().AdicionarAluno(Aluno(
-        Id: -1,
-        Nome: _controller.text,
-        PresencaSemana: HorasPraPresenca,
-        Anotacoes: _controllerAnotacao.text,
-        UltimoPagamento: DateTime.parse(_controllerData.text),
-        ModeloNegocios: _controllerRegime.text));
 
-    for (var element in HorariosSelecionados) {
-      Controller()
-          .Obter_Dia_porString(element.DiaDaSemana)
-          .Horarios
-          .firstWhere((e) => e.Hora == element.HorarioSelecionado)
-          .AdicionarPessoa(NovoAluno.Id);
+    _controllerRegime.text =
+        '${ListaRegimes.indexOf(_controllerRegime.text) + 1}';
+    if (Data != null) {
+      Data.SetNome(_controller.text);
+      Data.SetAnotacoes(_controllerAnotacao.text);
+      Data.SetUltimoPagamento(DateTime.parse(_controllerData.text),
+          int.parse(_controllerRegime.text), false);
+      Data.SetPresencaSemana(HorasPraPresenca);
+    } else {
+      Aluno NovoAluno = AlunosController().AdicionarAluno(Aluno(
+          Id: -1,
+          Nome: _controller.text,
+          PresencaSemana: HorasPraPresenca,
+          Anotacoes: _controllerAnotacao.text,
+          UltimoPagamento: DateTime.parse(_controllerData.text),
+          ModeloNegocios: _controllerRegime.text));
+
+      for (var element in HorariosSelecionados) {
+        Controller()
+            .Obter_Dia_porString(element.DiaDaSemana)
+            .Horarios
+            .firstWhere((e) => e.Hora == element.HorarioSelecionado)
+            .AdicionarPessoa(NovoAluno.Id);
+      }
     }
     _controller.text = "";
     EtapaAtual = 0;
     HorariosSelecionados.clear();
     Navigator.pushNamed(context, "/WeekScreen");
+  }
+
+  void RemoverAluno() {
+    AlunosController().RemoverAluno(Data);
   }
 
   bool CheckSeSelecionado(String DiaDaSemana, String HoraSelecionada) {
@@ -164,7 +198,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),
-        firstDate: DateTime.now(),
+        firstDate: DateTime(2024),
         lastDate: DateTime(2100));
     if (picked != null && picked != DateTime.now()) {
       setState(
@@ -204,27 +238,11 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                 WindowWidth,
                 CheckSeSelecionado,
                 AdicionarHorario,
-                RemoverHorario),
+                RemoverHorario,
+                Data),
           if (EtapaAtual == 1) SegundaEtapa(selectDate, context, setState),
-          TextButton(
-            onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,
-            style: ButtonStyle(
-              overlayColor: MaterialStateProperty.all(Colors.transparent),
-            ),
-            child: GlassContainer(
-              Cor: Color.fromRGBO(12, 255, 32, 1),
-              Width: 0,
-              Rotate: 20,
-              Height: 40,
-              Child: Center(
-                child: Text(
-                  EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
-                  style: TextStyle(
-                      color: Color.fromRGBO(12, 255, 32, 1), fontSize: 15),
-                ),
-              ),
-            ),
-          ),
+          BotoesFimPagina(Data, ProximaEtapa, SalvarNovoAgendamento,
+              RemoverAluno, EnviarParaInicio)
         ],
       ),
     );
@@ -232,7 +250,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
 }
 
 Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
-    WindowWidth, CheckSeSelecionado, AdicionarHorario, RemoverHorario) {
+    WindowWidth, CheckSeSelecionado, AdicionarHorario, RemoverHorario, Data) {
   return Expanded(
       child: Column(
     children: [
@@ -261,7 +279,7 @@ Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
       Expanded(
         child: ListView(
           children: Controller()
-              .Obter_Dias_Da_Semana()
+              .Obter_Dias_Da_Semana(Data?.Id ?? -1)
               .map(
                 (D) => TextButton(
                   onPressed: () => {
@@ -438,6 +456,77 @@ Widget SegundaEtapa(selectDate, context, setState) {
                   )).toList()),
         )
       ],
+    ),
+  );
+}
+
+Widget BotoesFimPagina(
+    Data, ProximaEtapa, SalvarNovoAgendamento, RemoverAluno, EnviarParaInicio) {
+  if (Data != null) {
+    return GlassContainer(
+        Width: 0,
+        Height: 52,
+        Cor: Colors.transparent,
+        Child: GridView(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              mainAxisExtent: 50, crossAxisCount: 2),
+          children: [
+            TextButton(
+              onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+              ),
+              child: GlassContainer(
+                Cor: Color.fromRGBO(12, 255, 32, 1),
+                Width: 0,
+                Rotate: 20,
+                Height: 40,
+                Child: Center(
+                  child: Text(
+                    EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
+                    style: TextStyle(
+                        color: Color.fromRGBO(12, 255, 32, 1), fontSize: 15),
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => {RemoverAluno(), EnviarParaInicio()},
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+              ),
+              child: GlassContainer(
+                Cor: Colors.red,
+                Width: 0,
+                Rotate: 20,
+                Height: 40,
+                Child: Center(
+                  child: Text(
+                    "REMOVER",
+                    style: TextStyle(color: Colors.red, fontSize: 15),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ));
+  }
+  return TextButton(
+    onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,
+    style: ButtonStyle(
+      overlayColor: MaterialStateProperty.all(Colors.transparent),
+    ),
+    child: GlassContainer(
+      Cor: Color.fromRGBO(12, 255, 32, 1),
+      Width: 0,
+      Rotate: 20,
+      Height: 40,
+      Child: Center(
+        child: Text(
+          EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
+          style: TextStyle(color: Color.fromRGBO(12, 255, 32, 1), fontSize: 15),
+        ),
+      ),
     ),
   );
 }

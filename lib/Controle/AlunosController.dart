@@ -1,6 +1,7 @@
 // ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_const_constructors, unnecessary_null_comparison
 
 import 'package:app_pilates/Controle/Classes.dart';
+import 'package:app_pilates/Controle/Controller.dart';
 
 Map<String, String> Tranfomacao = {
   "SEGUNDA-FEIRA": "SEG",
@@ -30,10 +31,11 @@ class AlunosController {
   }
 
   Aluno ObterAlunoPorId(int Id) {
-    if (Id == -1) {
+    try {
+      return ListaAlunos.firstWhere((element) => element.Id == Id);
+    } catch (e) {
       return VisualizadorDeErro;
     }
-    return ListaAlunos.firstWhere((element) => element.Id == Id);
   }
 
   List<Aluno> ObterFaltas() {
@@ -59,6 +61,11 @@ class AlunosController {
     }
 
     return siglas.join(' | ');
+  }
+
+  void RemoverAluno(Aluno Data) {
+    Controller().RemoverDosHorarios(Data);
+    ListaAlunos.removeWhere((element) => element.Id == Data.Id);
   }
 
   // CONTROLE PAGAMENTO e REMARCAÇÃO

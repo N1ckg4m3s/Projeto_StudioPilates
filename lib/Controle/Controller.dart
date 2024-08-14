@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_interpolation_to_compose_strings, unnecessary_null_comparison
+// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, unrelated_type_equality_checks
 import 'Classes.dart';
 
 final List<DiaSemana> Data = [];
@@ -27,8 +27,17 @@ class Controller {
     return NewData;
   }
 
+  void RemoverDosHorarios(Aluno Remover) {
+    for (var Valor in Remover.PresencaSemana!) {
+      var Dia = Data.firstWhere((element) => element.Nome == Valor.DiaSemana);
+      var Hora =
+          Dia.Horarios.firstWhere((element) => element.Hora == Valor.Horario);
+      Hora.IdAlunos.removeWhere((element) => element == Remover.Id);
+    }
+  }
+
   //Essa função é para adicionar um horario a um dia da semana
-  Adicionar_Horario_No_Dia(DiaSemana DiaSemana, String Hora) {
+  void Adicionar_Horario_No_Dia(DiaSemana DiaSemana, String Hora) {
     DiaSemana.Horarios.add(Horario(Hora: Hora, IdAlunos: []));
   }
 
@@ -38,7 +47,7 @@ class Controller {
   }
 
   //Essa função é para obter todas os dias da semana determinado
-  List<DiaSemana> Obter_Dias_Da_Semana() {
+  List<DiaSemana> Obter_Dias_Da_Semana(int Manter) {
     List<DiaSemana> horariosLivres = [];
 
     for (var diaSemana in Data) {
@@ -49,7 +58,8 @@ class Controller {
 
       for (var horario in diaSemana.Horarios) {
         if (horario.IdAlunos.length <
-            ConfiguracoesBasicas!.LimiteAulasPorHorario) {
+                ConfiguracoesBasicas!.LimiteAulasPorHorario ||
+            horario.IdAlunos.contains(Manter)) {
           diaSemanaLivre.Horarios.add(horario);
         }
       }
@@ -85,7 +95,7 @@ class Controller {
     return diaSemana;
   }
 
-  DefinirConfiguracoes(Configuracoes Config) {
+  void DefinirConfiguracoes(Configuracoes Config) {
     ConfiguracoesBasicas = Config;
   }
 

@@ -58,7 +58,7 @@ List<String> Sobrenomes = [
 ];
 
 gerarDadosTeste() {
-  int NumeroDeAlunos = 50;
+  int NumeroDeAlunos = 3;
   Random random = Random();
 
   for (var nrmAluno = 0; nrmAluno < NumeroDeAlunos; nrmAluno++) {
@@ -70,7 +70,7 @@ gerarDadosTeste() {
 
     String DiaDaSemanaRandom;
     List<Hora> HorariosSelecionados = [];
-    List<DiaSemana> DiasDaSemana = Controller().Obter_Dias_Da_Semana();
+    List<DiaSemana> DiasDaSemana = Controller().Obter_Dias_Da_Semana(-1);
 
     while (HorariosSelecionados.length < 2) {
       DiaDaSemanaRandom = diasSemana[random.nextInt(diasSemana.length)];
@@ -97,7 +97,7 @@ gerarDadosTeste() {
             .AdicionarPessoa(NovoAluno.Id);
       }
       NovoAluno.SetPresencaSemana(HorariosSelecionados);
-      NovoAluno.SetAnotacoes("Sem anotações");
+      NovoAluno.SetAnotacoes("");
       int year = DateTime.now().year;
       int month = DateTime.now().month - 1;
       NovoAluno.SetUltimoPagamento(
