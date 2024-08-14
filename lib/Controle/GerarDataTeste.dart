@@ -86,7 +86,7 @@ gerarDadosTeste() {
         HorariosSelecionados.add(
           Hora(
               Horario: Escolha.Hora,
-              Presenca: false,
+              Presenca: random.nextInt(100) < 50,
               DiaSemana: DiaDaSemanaRandom),
         );
 

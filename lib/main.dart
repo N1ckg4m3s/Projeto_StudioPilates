@@ -3,6 +3,7 @@
 import 'package:app_pilates/ConfigScreen/ConfScreenMain.dart';
 import 'package:app_pilates/Controle/IniciarVareaveis.dart';
 import 'package:app_pilates/HorarioScreen.dart';
+import 'package:app_pilates/RelatorioScreen/RelatorioScreenMain.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/WeekScreen.dart';
 import 'Controle/GerarDataTeste.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
         "/WeekScreen": (context) => const WeekScreen(), // 500
         "/HorarioScreen": (context) => const HorarioScreen(), // 500
         "/ConfigScreen": (context) => const ConfigScreen(), //
+        "/RelatScreen": (context) => const RelatorioScreen(), //
       },
     );
   }

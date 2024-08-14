@@ -35,6 +35,7 @@ class StateWeekScreen extends State<WeekScreen> {
                   HorarioSelecionado: HoraSelec))
         };
     EnviarParaConfigs() => {Navigator.pushNamed(context, "/ConfigScreen")};
+    EnviarParaRelatorios() => {Navigator.pushNamed(context, "/RelatScreen")};
     Dia = Controller().Obter_Dia_porString(TopicoSelecionado);
     double WindowWidth = MediaQuery.of(context).size.width;
     double WindowHeight = MediaQuery.of(context).size.height;
@@ -81,7 +82,7 @@ class StateWeekScreen extends State<WeekScreen> {
                         ),
                         padding: EdgeInsets.only(right: WindowWidth * .5),
                         child: NavBar(WindowWidth, WindowHeight, setState,
-                            EnviarParaConfigs),
+                            EnviarParaConfigs, EnviarParaRelatorios),
                       )
                   ],
                 )
@@ -89,7 +90,8 @@ class StateWeekScreen extends State<WeekScreen> {
             );
           else
             return Row(children: [
-              NavBar(WindowWidth, WindowHeight, setState, EnviarParaConfigs),
+              NavBar(WindowWidth, WindowHeight, setState, EnviarParaConfigs,
+                  EnviarParaRelatorios),
               ConteudoTela(WindowWidth, WindowHeight, EnviarParaConfigs,
                   EnviarParaHorarios, false),
             ]);
@@ -97,7 +99,8 @@ class StateWeekScreen extends State<WeekScreen> {
   }
 }
 
-Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaConfigs) {
+Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaConfigs,
+    EnviarParaRelatorios) {
   return GlassContainer(
       key: Key("NavBar"),
       Cor: Color.fromRGBO(255, 255, 255, 1),
@@ -164,7 +167,7 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaConfigs) {
             ),
           ),
           TextButton(
-            onPressed: () => {},
+            onPressed: EnviarParaRelatorios,
             style: ButtonStyle(
               overlayColor: MaterialStateProperty.all(Colors.transparent),
             ),

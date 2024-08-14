@@ -1,24 +1,23 @@
-// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables
+// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables, unused_import
 
 import 'package:app_pilates/ConfigScreen/NovoAgendamento.dart';
+import 'package:app_pilates/RelatorioScreen/FaltasGerais.dart';
+import 'package:app_pilates/RelatorioScreen/Mensalidades.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 
-import 'Agendamentos.dart';
-import 'Horarios.dart';
-
-class ConfigScreen extends StatefulWidget {
-  const ConfigScreen({super.key});
+class RelatorioScreen extends StatefulWidget {
+  const RelatorioScreen({super.key});
 
   @override
-  ConfigScreenState createState() => ConfigScreenState();
+  RelatorioScreenState createState() => RelatorioScreenState();
 }
 
-final List<String> Paginas = ["HORARIOS", "ALUNO"];
-String ShowPage = "NOVOAGENDAMENTO";
+final List<String> Paginas = ["FALTAS GERAIS", "MENSALIDADES"];
+String ShowPage = "FALTAS GERAIS";
 bool DroweAberto = false;
 
-class ConfigScreenState extends State<ConfigScreen> {
+class RelatorioScreenState extends State<RelatorioScreen> {
   @override
   Widget build(BuildContext context) {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
@@ -145,16 +144,9 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
 }
 
 Widget ConteudoTela(setState) {
-  return ShowPage == "HORARIOS"
-      ? HorarioScreen()
-      : ShowPage == "ALUNO"
-          ? AgendamentoScreen(
-              EnviarParaNovoAgendamento: () => {
-                    setState(() {
-                      ShowPage = "NOVOAGENDAMENTO";
-                    })
-                  })
-          : ShowPage == "NOVOAGENDAMENTO"
-              ? NovoAgendamentoScreen()
-              : Text("DEU BO AQ");
+  return ShowPage == "FALTAS GERAIS"
+      ? FaltasGeraisScreen()
+      : ShowPage == "MENSALIDADES"
+          ? MensalidadesScreen()
+          : Text("Deu B.O aqui");
 }
