@@ -11,6 +11,16 @@ class FaltasGeraisScreen extends StatefulWidget {
   FaltasGeraisScreenState createState() => FaltasGeraisScreenState();
 }
 
+int AjustarQuantidades(MaxW) {
+  return MaxW >= 1100
+      ? 4
+      : MaxW > 930
+          ? 3
+          : MaxW > 620
+              ? 2
+              : 1;
+}
+
 class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
   @override
   Widget build(BuildContext context) {
@@ -25,7 +35,7 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
                 : (WindowWidth - 230)
             : WindowWidth - 20,
         Padding: EdgeInsets.all(10),
-        Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
+        Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
         Child: Column(children: [
           Center(
             child: Text(
@@ -36,7 +46,8 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
           Expanded(
               child: GridView(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, mainAxisExtent: 40),
+                crossAxisCount: AjustarQuantidades(WindowWidth),
+                mainAxisExtent: 40),
             children: AlunosController()
                 .ObterFaltas()
                 .map((e) => Text(

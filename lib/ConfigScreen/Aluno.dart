@@ -56,6 +56,15 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
 
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
+
+    var QuantidadeItens = WindowWidth > 950
+        ? 3
+        : WindowWidth > 800
+            ? 2
+            : (WindowWidth < 599 && WindowWidth > 550)
+                ? 2
+                : 1; //
+
     return GlassContainer(
       Cor: Color.fromRGBO(255, 255, 255, 1),
       Width: WindowWidth > 601
@@ -63,7 +72,7 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
       Child: Column(
         children: [
           Center(
@@ -92,7 +101,7 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
           Expanded(
               child: GridView(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                mainAxisExtent: 85, crossAxisCount: 3),
+                mainAxisExtent: 85, crossAxisCount: QuantidadeItens),
             padding: EdgeInsets.only(right: 10),
             children: AlunosController()
                 .ObterAlunos()

@@ -25,7 +25,7 @@ class HorarioScreenState extends State<HorarioScreen> {
             ? 3
             : WindowWidth > 600
                 ? 5
-                : 4;
+                : 4; //
 
     return GlassContainer(
       Cor: Color.fromRGBO(255, 255, 255, 1),
@@ -34,7 +34,7 @@ class HorarioScreenState extends State<HorarioScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
       Child: Column(
         children: [
           Center(

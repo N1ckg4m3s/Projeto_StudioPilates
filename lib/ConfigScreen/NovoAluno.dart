@@ -23,7 +23,7 @@ final TextEditingController _controllerData = TextEditingController();
 final TextEditingController _controllerRegime =
     TextEditingController(text: 'Mensal');
 
-int EtapaAtual = 0;
+int EtapaAtual = 0; //
 
 class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   var Data;
@@ -221,7 +221,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
       Child: Column(
         children: [
           Center(

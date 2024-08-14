@@ -14,6 +14,16 @@ class MensalidadesScreen extends StatefulWidget {
 List<String> Filtros = ["VENCIDAS", "ATÉ 4 DIAS", "1 SEMANA", "TODOS"];
 String FiltroAtual = "TODOS";
 
+int AjustarQuantidades(MaxW) {
+  return MaxW >= 1100
+      ? 4
+      : MaxW > 930
+          ? 3
+          : MaxW > 620
+              ? 2
+              : 1;
+}
+
 class MensalidadesScreenState extends State<MensalidadesScreen> {
   @override
   Widget build(BuildContext context) {
@@ -27,7 +37,7 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                 ? (WindowWidth * .8) - 30
                 : (WindowWidth - 230)
             : WindowWidth - 20,
-        Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
+        Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
         Child: Column(children: [
           Center(
             child: Text(
@@ -37,11 +47,12 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
           ),
           GlassContainer(
             Width: 0,
-            Height: 52,
+            Height: (50 * (WindowWidth > 880 ? 1 : 2)) + 2,
             Cor: Colors.transparent,
             Child: GridView(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    mainAxisExtent: 50, crossAxisCount: 4),
+                    mainAxisExtent: 50,
+                    crossAxisCount: WindowWidth > 880 ? 4 : 2),
                 children: Filtros.map((e) => TextButton(
                       onPressed: () => setState(() {
                         FiltroAtual = e;
@@ -73,7 +84,8 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
           Expanded(
               child: GridView(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, mainAxisExtent: 40),
+                crossAxisCount: AjustarQuantidades(WindowWidth),
+                mainAxisExtent: 40),
             children:
                 AlunosController().ObterMensalidades(FiltroAtual).map((aluno) {
               Color corTexto;

@@ -85,11 +85,11 @@ class StateHorarioScreen extends State<HorarioScreen> {
                 Stack(
                   children: [
                     ConteudoTela(
-                        WindowWidth, WindowHeight - 55, setState, true),
+                        WindowWidth, WindowHeight - 75, setState, true),
                     if (DroweAberto)
                       Container(
                         width: WindowWidth,
-                        height: WindowHeight - 35,
+                        height: WindowHeight - 55,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
                             Colors.black,
@@ -101,7 +101,8 @@ class StateHorarioScreen extends State<HorarioScreen> {
                             1
                           ]),
                         ),
-                        padding: EdgeInsets.only(right: WindowWidth * .5),
+                        padding:
+                            EdgeInsets.only(right: (WindowWidth * .5) - 20),
                         child: NavBar(WindowWidth, WindowHeight, setState,
                             EnviarParaInicio),
                       )

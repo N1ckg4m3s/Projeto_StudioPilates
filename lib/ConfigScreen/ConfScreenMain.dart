@@ -4,6 +4,7 @@ import 'package:app_pilates/ConfigScreen/NovoAluno.dart';
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
+import 'package:flutter/widgets.dart';
 
 import 'Aluno.dart';
 import 'Horarios.dart';
@@ -34,7 +35,8 @@ class ConfigScreenState extends State<ConfigScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
+                Container(
+                    margin: EdgeInsets.only(top: 20),
                     width: 50,
                     height: 35,
                     child: IconButton(
@@ -54,7 +56,7 @@ class ConfigScreenState extends State<ConfigScreen> {
                     if (DroweAberto)
                       Container(
                         width: WindowWidth,
-                        height: WindowHeight - 35,
+                        height: WindowHeight - 55,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
                             Colors.black,

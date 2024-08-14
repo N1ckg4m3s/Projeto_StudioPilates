@@ -68,7 +68,7 @@ class StateWeekScreen extends State<WeekScreen> {
                     if (DroweAberto)
                       Container(
                         width: WindowWidth,
-                        height: WindowHeight - 35,
+                        height: WindowHeight - 55,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
                             Colors.black,
@@ -80,7 +80,8 @@ class StateWeekScreen extends State<WeekScreen> {
                             1
                           ]),
                         ),
-                        padding: EdgeInsets.only(right: WindowWidth * .5),
+                        padding:
+                            EdgeInsets.only(right: (WindowWidth * .5) - 20),
                         child: NavBar(WindowWidth, WindowHeight, setState,
                             EnviarParaConfigs, EnviarParaRelatorios),
                       )
