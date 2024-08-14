@@ -75,6 +75,7 @@ class Aluno {
   String Nome;
   String? Anotacoes;
   DateTime? UltimoPagamento;
+  bool? Parcelado;
   String? ModeloNegocios;
   List<Hora>? PresencaSemana;
 
@@ -85,6 +86,7 @@ class Aluno {
     this.UltimoPagamento,
     this.ModeloNegocios,
     this.PresencaSemana,
+    this.Parcelado,
   });
 
   //SETTERS
@@ -96,8 +98,10 @@ class Aluno {
     Anotacoes = NovaAnotacao;
   }
 
-  SetUltimoPagamento(DateTime DataPagamento) {
+  SetUltimoPagamento(DateTime DataPagamento, int Modelo, bool Parcelado) {
     UltimoPagamento = DataPagamento;
+    ModeloNegocios = '$Modelo';
+    Parcelado = Parcelado;
   }
 
   SetModeloNegocios(String NovoModeloNegocios) {
@@ -136,7 +140,7 @@ class Aluno {
   }
 
   DateTime GetUltimoPagamento() {
-    return UltimoPagamento!;
+    return UltimoPagamento!.add(Duration(days: 30));
   }
 
   String GetModeloNegocios() {

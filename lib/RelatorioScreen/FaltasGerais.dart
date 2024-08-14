@@ -2,7 +2,6 @@
 
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
-import 'package:app_pilates/Controle/Controller.dart';
 import 'package:flutter/material.dart';
 
 class FaltasGeraisScreen extends StatefulWidget {

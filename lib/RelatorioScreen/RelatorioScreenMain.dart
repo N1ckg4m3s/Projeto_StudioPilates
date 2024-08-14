@@ -14,7 +14,7 @@ class RelatorioScreen extends StatefulWidget {
 }
 
 final List<String> Paginas = ["FALTAS GERAIS", "MENSALIDADES"];
-String ShowPage = "FALTAS GERAIS";
+String ShowPage = "MENSALIDADES";
 bool DroweAberto = false;
 
 class RelatorioScreenState extends State<RelatorioScreen> {

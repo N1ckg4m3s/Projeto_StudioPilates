@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, avoid_print
+// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_const_constructors, unnecessary_null_comparison
 
 import 'package:app_pilates/Controle/Classes.dart';
 
@@ -62,6 +62,21 @@ class AlunosController {
   }
 
   // CONTROLE PAGAMENTO e REMARCAÇÃO
+  List<Aluno> ObterMensalidades(String Filtro) {
+    DateTime agora = DateTime.now();
+    return ListaAlunos.where((Aluno A) {
+      int Diference = -agora.difference(A.GetUltimoPagamento()).inDays;
+
+      if (Filtro == "VENCIDAS") {
+        return Diference < 0;
+      } else if (Filtro == "ATÉ 4 DIAS") {
+        return Diference > 0 && Diference <= 4;
+      } else if (Filtro == "1 SEMANA") {
+        return Diference > 4 && Diference <= 7;
+      }
+      return true;
+    }).toList();
+  }
 
   // DB FUNCTIONS
   SalvarData() {}

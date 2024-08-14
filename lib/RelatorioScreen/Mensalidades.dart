@@ -1,6 +1,9 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_const_literals_to_create_immutables, prefer_const_constructors, file_names
 
+import 'dart:math';
+
 import 'package:app_pilates/Componentes/GlassContainer.dart';
+import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:flutter/material.dart';
 
 class MensalidadesScreen extends StatefulWidget {
@@ -9,6 +12,9 @@ class MensalidadesScreen extends StatefulWidget {
   @override
   MensalidadesScreenState createState() => MensalidadesScreenState();
 }
+
+List<String> Filtros = ["VENCIDAS", "ATÉ 4 DIAS", "1 SEMANA", "TODOS"];
+String FiltroAtual = "TODOS";
 
 class MensalidadesScreenState extends State<MensalidadesScreen> {
   @override
@@ -24,6 +30,88 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                 : (WindowWidth - 230)
             : WindowWidth - 20,
         Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
-        Child: Column(children: []));
+        Child: Column(children: [
+          Center(
+            child: Text(
+              "MENSALIDADES",
+              style: TextStyle(color: Colors.white, fontSize: 25),
+            ),
+          ),
+          GlassContainer(
+            Width: 0,
+            Height: 52,
+            Cor: Colors.transparent,
+            Child: GridView(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    mainAxisExtent: 50, crossAxisCount: 4),
+                children: Filtros.map((e) => TextButton(
+                      onPressed: () => setState(() {
+                        FiltroAtual = e;
+                      }),
+                      style: ButtonStyle(
+                        overlayColor:
+                            MaterialStateProperty.all(Colors.transparent),
+                      ),
+                      child: Container(
+                          margin: EdgeInsets.only(left: 20, right: 20),
+                          width: double.maxFinite,
+                          child: GlassContainer(
+                            Width: 0,
+                            Height: 35,
+                            Child: Center(
+                              child: Text(e,
+                                  style: TextStyle(
+                                    color: FiltroAtual != e
+                                        ? Color.fromRGBO(255, 255, 255, 1)
+                                        : Color.fromRGBO(173, 99, 173, 1),
+                                  )),
+                            ),
+                            Cor: FiltroAtual != e
+                                ? Color.fromRGBO(255, 255, 255, 1)
+                                : Color.fromRGBO(173, 99, 173, 1),
+                          )),
+                    )).toList()),
+          ),
+          Expanded(
+              child: GridView(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, mainAxisExtent: 40),
+            children:
+                AlunosController().ObterMensalidades(FiltroAtual).map((aluno) {
+              Color corTexto;
+              String texto;
+              int diasDiferenca =
+                  -DateTime.now().difference(aluno.GetUltimoPagamento()).inDays;
+              if (aluno.UltimoPagamento == null) {
+                diasDiferenca = -1;
+              }
+              Transformar(DateTime data) {
+                return '${data.day}/${data.month}/${data.year}';
+              }
+
+              texto =
+                  '${aluno.Nome}: ${Transformar(aluno.GetUltimoPagamento())}';
+
+              if (diasDiferenca == 0) {
+                texto = '${aluno.Nome}: Hoje';
+                corTexto = Colors.red;
+              } else if (diasDiferenca <= 0) {
+                texto = '${aluno.Nome}: há ${diasDiferenca.abs()} dias';
+                corTexto = Colors.red;
+              } else if (diasDiferenca <= 4) {
+                corTexto = Colors.orange;
+                texto = '${aluno.Nome}: em ${diasDiferenca.abs()} dias';
+              } else {
+                corTexto = Colors.white;
+                texto = '${aluno.Nome}: Daqui ${diasDiferenca.abs()} dias';
+              }
+
+              return Text(
+                texto,
+                style: TextStyle(color: corTexto),
+              );
+            }).toList(),
+          ))
+        ]));
   }
 }

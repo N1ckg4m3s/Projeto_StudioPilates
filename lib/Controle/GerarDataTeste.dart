@@ -99,10 +99,11 @@ gerarDadosTeste() {
       NovoAluno.SetPresencaSemana(HorariosSelecionados);
       NovoAluno.SetAnotacoes("Sem anotações");
       int year = DateTime.now().year;
-      int month = DateTime.now().month;
+      int month = DateTime.now().month - 1;
       NovoAluno.SetUltimoPagamento(
-          DateTime(year, month, random.nextInt(29) + 1));
-      NovoAluno.SetModeloNegocios('1');
+          DateTime(year, month, random.nextInt(29) + 1),
+          random.nextInt(2) + 1,
+          random.nextInt(100) < 50);
     }
   }
 }
