@@ -106,7 +106,7 @@ Widget Card(WindowWidth, Aluno Data) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "[Próximo pagamento]",
+                Data.GetUltimoPagamentoFormatoYMD(),
                 style: TextStyle(color: Colors.white, fontSize: 10),
               ),
               Text(

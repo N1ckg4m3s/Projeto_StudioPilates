@@ -104,8 +104,10 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     List<Hora> HorasPraPresenca = [];
 
     for (var element in HorariosSelecionados) {
-      HorasPraPresenca.add(
-          Hora(Horario: element.HorarioSelecionado, Presenca: false));
+      HorasPraPresenca.add(Hora(
+          Horario: element.HorarioSelecionado,
+          Presenca: false,
+          DiaSemana: element.DiaDaSemana));
     }
     Aluno NovoAluno = AlunosController().AdicionarAluno(Aluno(
         Id: -1,
@@ -123,6 +125,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
           .AdicionarPessoa(NovoAluno.Id);
     }
     _controller.text = "";
+    EtapaAtual = 0;
     HorariosSelecionados.clear();
     Navigator.pushNamed(context, "/WeekScreen");
   }

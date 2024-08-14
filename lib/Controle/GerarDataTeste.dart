@@ -81,10 +81,13 @@ gerarDadosTeste() {
       var Escolha = Horarios[random.nextInt(Horarios.length)];
 
       if (Escolha.IdAlunos.length <
-              ConfiguracoesBasicas.LimiteAulasPorHorario &&
+              ConfiguracoesBasicas!.LimiteAulasPorHorario &&
           !Escolha.IdAlunos.contains(NovoAluno.Id)) {
         HorariosSelecionados.add(
-          Hora(Horario: Escolha.Hora, Presenca: false),
+          Hora(
+              Horario: Escolha.Hora,
+              Presenca: false,
+              DiaSemana: DiaDaSemanaRandom),
         );
 
         Controller()
@@ -95,16 +98,11 @@ gerarDadosTeste() {
       }
       NovoAluno.SetPresencaSemana(HorariosSelecionados);
       NovoAluno.SetAnotacoes("Sem anotações");
-      //UltimoPagamento: DateTime.parse(_controllerData.text),
+      int year = DateTime.now().year;
+      int month = DateTime.now().month;
+      NovoAluno.SetUltimoPagamento(
+          DateTime(year, month, random.nextInt(29) + 1));
       NovoAluno.SetModeloNegocios('1');
-
-      for (var element in HorariosSelecionados) {
-        Controller()
-            .Obter_Dia_porString(DiaDaSemanaRandom)
-            .Horarios
-            .firstWhere((e) => e.Hora == element.Horario)
-            .AdicionarPessoa(NovoAluno.Id);
-      }
     }
   }
 }

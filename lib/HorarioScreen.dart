@@ -44,10 +44,10 @@ class StateHorarioScreen extends State<HorarioScreen> {
     final arguments = ModalRoute.of(context)?.settings.arguments;
 
     if (arguments is DataEnvio_Week_Horario) {
+      DiaSemanaSelecionado = arguments.DiaDaSemana;
       Dia = Controller().Obter_Dia_porString(arguments.DiaDaSemana);
       TopicoSelecionado = arguments.HorarioSelecionado;
     } else {
-      // Fallback para valores padrão
       Dia = Controller().Obter_Dia_porString('SEGUNDA-FEIRA');
       TopicoSelecionado = Dia!.Horarios.first.Hora;
     }
@@ -222,16 +222,15 @@ Widget ConteudoTela(WindowWidth, WindowHeight, setState, bool Tamanho) {
                     setState(() {
                       AlunosController()
                           .ObterAlunoPorId(e)
-                          .SetPresenca(TopicoSelecionado);
+                          .SetPresenca(TopicoSelecionado, DiaSemanaSelecionado);
                     })
                   },
                   style: ButtonStyle(
                     overlayColor: MaterialStateProperty.all(Colors.transparent),
                   ),
                   child: GlassContainer(
-                    Cor: AlunosController()
-                            .ObterAlunoPorId(e)
-                            .GetPresenca(TopicoSelecionado) // PRESENÇA
+                    Cor: AlunosController().ObterAlunoPorId(e).GetPresenca(
+                            TopicoSelecionado, DiaSemanaSelecionado) // PRESENÇA
                         ? Color.fromRGBO(12, 255, 32, 1)
                         : Color.fromRGBO(255, 255, 255, 1),
                     Rotate: 20,
@@ -243,7 +242,8 @@ Widget ConteudoTela(WindowWidth, WindowHeight, setState, bool Tamanho) {
                         style: TextStyle(
                           color: AlunosController()
                                   .ObterAlunoPorId(e)
-                                  .GetPresenca(TopicoSelecionado)
+                                  .GetPresenca(
+                                      TopicoSelecionado, DiaSemanaSelecionado)
                               ? Color.fromRGBO(12, 255, 32, 1)
                               : Color.fromRGBO(255, 255, 255, 1),
                           fontSize: 20,

@@ -2,7 +2,7 @@
 import 'Classes.dart';
 
 final List<DiaSemana> Data = [];
-Configuracoes ConfiguracoesBasicas = Configuracoes();
+Configuracoes? ConfiguracoesBasicas;
 
 Horario HorarioAntErro = Horario(Hora: "", IdAlunos: []);
 
@@ -48,7 +48,8 @@ class Controller {
       );
 
       for (var horario in diaSemana.Horarios) {
-        if (horario.IdAlunos.length < Configuracoes().LimiteAulasPorHorario) {
+        if (horario.IdAlunos.length <
+            ConfiguracoesBasicas!.LimiteAulasPorHorario) {
           diaSemanaLivre.Horarios.add(horario);
         }
       }
@@ -89,7 +90,7 @@ class Controller {
   }
 
   Configuracoes ObterConfiguracoes() {
-    return ConfiguracoesBasicas;
+    return ConfiguracoesBasicas!;
   }
 
   String Gerar_Siglas_Do_Aluno(int Id) {

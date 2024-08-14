@@ -12,6 +12,10 @@ List<String> diasSemana = [
 ];
 
 IniciarPrograma() {
+  Controller().DefinirConfiguracoes(Configuracoes(
+      DiaDeHoje: DateTime.now(),
+      HorasTrabalhadas: [6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20],
+      LimiteAulasPorHorario: 4));
   for (var Data in diasSemana) {
     List<Horario> Horarios = [];
     for (var Hora in Controller().ObterConfiguracoes().HorasTrabalhadas) {

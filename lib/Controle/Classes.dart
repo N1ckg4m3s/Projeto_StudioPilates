@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, camel_case_types
+// ignore_for_file: file_names, non_constant_identifier_names, camel_case_types, prefer_interpolation_to_compose_strings, avoid_print
 
 import 'package:app_pilates/Controle/AlunosController.dart';
 
@@ -60,10 +60,12 @@ class FormatoDeData {
 
 class Hora {
   String Horario;
+  String DiaSemana;
   bool Presenca;
 
   Hora({
     required this.Horario,
+    required this.DiaSemana,
     required this.Presenca,
   });
 }
@@ -102,12 +104,14 @@ class Aluno {
     ModeloNegocios = NovoModeloNegocios;
   }
 
-  SetPresenca(String Horario) {
+  SetPresenca(String Horario, String DiaSemana) {
     PresencaSemana!
-            .firstWhere((element) => element.Horario == Horario)
+            .firstWhere((element) =>
+                element.DiaSemana == DiaSemana && element.Horario == Horario)
             .Presenca =
         !PresencaSemana!
-            .firstWhere((element) => element.Horario == Horario)
+            .firstWhere((element) =>
+                element.DiaSemana == DiaSemana && element.Horario == Horario)
             .Presenca;
   }
 
@@ -124,6 +128,13 @@ class Aluno {
     return Anotacoes!;
   }
 
+  String GetUltimoPagamentoFormatoYMD() {
+    int year = UltimoPagamento!.year;
+    int mont = UltimoPagamento!.month;
+    int day = UltimoPagamento!.day;
+    return '${day <= 9 ? '0$day' : day}/${mont <= 9 ? '0$mont' : mont}/$year';
+  }
+
   DateTime GetUltimoPagamento() {
     return UltimoPagamento!;
   }
@@ -132,10 +143,16 @@ class Aluno {
     return ModeloNegocios!;
   }
 
-  bool GetPresenca(String Horario) {
-    return PresencaSemana!
-        .firstWhere((element) => element.Horario == Horario)
-        .Presenca;
+  bool GetPresenca(String horario, String diaSemana) {
+    try {
+      Hora horaEncontrada = PresencaSemana!.firstWhere(
+        (element) =>
+            element.DiaSemana == diaSemana && element.Horario == horario,
+      );
+      return horaEncontrada.Presenca;
+    } catch (e) {
+      return false;
+    }
   }
 }
 
@@ -150,6 +167,13 @@ class DataEnvio_Week_Horario {
 }
 
 class Configuracoes {
-  List<int> HorasTrabalhadas = [6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20];
-  int LimiteAulasPorHorario = 4;
+  List<int> HorasTrabalhadas;
+  int LimiteAulasPorHorario;
+  DateTime DiaDeHoje;
+
+  Configuracoes({
+    required this.HorasTrabalhadas,
+    required this.LimiteAulasPorHorario,
+    required this.DiaDeHoje,
+  });
 }
