@@ -111,6 +111,10 @@ class Aluno {
             .Presenca;
   }
 
+  SetPresencaSemana(List<Hora> Esquema) {
+    PresencaSemana = Esquema;
+  }
+
   //GETTERS
   String GetNome() {
     return Nome;

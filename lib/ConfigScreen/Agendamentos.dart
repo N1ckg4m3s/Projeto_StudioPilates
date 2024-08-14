@@ -52,139 +52,73 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Height: WindowHeight - 55,
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
       Child: Column(
         children: [
           Center(
             child: Text(
-              "AGENDAMENTOS",
+              "ALUNOS",
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ),
           TextButton(
-              onPressed: () => {EnviarParaNovoAgendamento()},
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent),
-              ),
-              child: GlassContainer(
-                  Cor: Color.fromRGBO(255, 255, 255, 1),
-                  Width: 0,
-                  Height: 40,
-                  Child: Center(
-                    child: Text(
-                      "NOVO AGENDAMENTO",
-                      style: TextStyle(color: Colors.white, fontSize: 15),
-                    ),
-                  ))),
-          Expanded(
-            child: ListView(
-              children: Controller()
-                  .Obter_Dias_Da_Semana()
-                  .map(
-                    (d) => TextButton(
-                      onPressed: () => {
-                        setState(() {
-                          VendoDiaSemana =
-                              VendoDiaSemana == d.Nome ? "" : d.Nome;
-                        })
-                      },
-                      style: ButtonStyle(
-                        overlayColor:
-                            MaterialStateProperty.all(Colors.transparent),
-                      ),
-                      child: GlassContainer(
-                        Cor: Color.fromRGBO(255, 255, 255, 1),
-                        Width: 0,
-                        MaxHeight: ArrumarHeight(),
-                        Height: VendoDiaSemana == d.Nome ? 0 : 40,
-                        Child: Column(
-                          children: [
-                            Text(
-                              d.Nome,
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 25),
-                            ),
-                            if (VendoDiaSemana == d.Nome)
-                              Expanded(
-                                child: GridView(
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: WindowWidth > 950
-                                              ? 4
-                                              : WindowWidth > 750
-                                                  ? 3
-                                                  : WindowWidth > 600
-                                                      ? 3
-                                                      : 2,
-                                          mainAxisExtent: 130),
-                                  children: Controller()
-                                      .ObterConfiguracoes()
-                                      .HorasTrabalhadas
-                                      .map(
-                                        (e) => TextButton(
-                                          onPressed: () => {},
-                                          style: ButtonStyle(
-                                            overlayColor:
-                                                MaterialStateProperty.all(
-                                                    Colors.transparent),
-                                          ),
-                                          child: GlassContainer(
-                                            Width: 0,
-                                            Height: 0,
-                                            Cor: Colors.white,
-                                            Child: Column(
-                                              children: [
-                                                Center(
-                                                  child: Text(
-                                                    '${e <= 9 ? ('0$e') : e}:00',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 15),
-                                                  ),
-                                                ),
-                                                Column(
-                                                  children: Controller()
-                                                      .Obter_Alunos_Horarios_e_Dia(
-                                                          VendoDiaSemana,
-                                                          '${e <= 9 ? ('0$e') : e}:00')
-                                                      .IdAlunos
-                                                      .map(
-                                                        (id) => Text(
-                                                          AlunosController()
-                                                              .ObterAlunoPorId(
-                                                                  id)
-                                                              .GetNome(),
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontSize: 15),
-                                                        ),
-                                                      )
-                                                      .toList(),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                              )
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
+            onPressed: () => {EnviarParaNovoAgendamento()},
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
             ),
-          )
+            child: GlassContainer(
+              Cor: Color.fromRGBO(255, 255, 255, 1),
+              Width: 0,
+              Height: 40,
+              Child: Center(
+                child: Text(
+                  "NOVO ALUNO",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+              child: GridView(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                mainAxisExtent: 85, crossAxisCount: 3),
+            padding: EdgeInsets.only(right: 10),
+            children: AlunosController()
+                .ObterAlunos()
+                .map((e) => Card(WindowWidth, e))
+                .toList(),
+          ))
         ],
       ),
     );
   }
 }
 
-/*
-
-
-*/
+Widget Card(WindowWidth, Aluno Data) {
+  return GlassContainer(
+      Width: 300,
+      Height: 50,
+      Padding: EdgeInsets.all(10),
+      Cor: Colors.white,
+      Child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "[Próximo pagamento]",
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
+              Text(
+                Controller().Gerar_Siglas_Do_Aluno(Data.Id),
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              )
+            ],
+          ),
+          Text(
+            Data.GetNome().toUpperCase(),
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          )
+        ],
+      ));
+}

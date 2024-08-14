@@ -34,7 +34,7 @@ class HorarioScreenState extends State<HorarioScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Height: WindowHeight - 55,
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 55),
       Child: Column(
         children: [
           Center(

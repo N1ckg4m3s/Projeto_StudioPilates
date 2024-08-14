@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:app_pilates/ConfigScreen/ConfScreenMain.dart';
+import 'package:app_pilates/Controle/IniciarVareaveis.dart';
 import 'package:app_pilates/HorarioScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/WeekScreen.dart';
@@ -13,6 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print(MediaQuery.of(context).size.width);
+    IniciarPrograma();
     gerarDadosTeste();
     return MaterialApp(
       initialRoute: "/WeekScreen",

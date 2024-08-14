@@ -1,10 +1,20 @@
-// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_interpolation_to_compose_strings
+// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_interpolation_to_compose_strings, unnecessary_null_comparison
 import 'Classes.dart';
 
 final List<DiaSemana> Data = [];
 Configuracoes ConfiguracoesBasicas = Configuracoes();
 
 Horario HorarioAntErro = Horario(Hora: "", IdAlunos: []);
+
+Map<String, String> Tranfomacao = {
+  "SEGUNDA-FEIRA": "SEG",
+  "TERÇA-FEIRA": "TER",
+  "QUARTA-FEIRA": "QUA",
+  "QUINTA-FEIRA": "QUI",
+  "SEXTA-FEIRA": "SEX",
+  "SABADO-FEIRA": "SAB",
+  "DOMINGO-FEIRA": "DOM",
+};
 
 class Controller {
   //Essa função é para adicionar um horario a um dia da semana
@@ -69,7 +79,7 @@ class Controller {
   DiaSemana Obter_Dia_porString(String nomeDiaSemana) {
     DiaSemana diaSemana = Data.firstWhere(
       (dia) => dia.Nome == nomeDiaSemana,
-      orElse: () => throw Exception('Dia da semana não encontrado'),
+      orElse: () => DiaSemana(Horarios: [], Nome: nomeDiaSemana),
     );
     return diaSemana;
   }
@@ -80,5 +90,18 @@ class Controller {
 
   Configuracoes ObterConfiguracoes() {
     return ConfiguracoesBasicas;
+  }
+
+  String Gerar_Siglas_Do_Aluno(int Id) {
+    List<String> siglas = [];
+    for (var dia in Data) {
+      for (var hora in dia.Horarios) {
+        if (hora.IdAlunos.contains(Id)) {
+          siglas.add(Tranfomacao[dia.Nome]!);
+          break;
+        }
+      }
+    }
+    return siglas.join(' | ');
   }
 }

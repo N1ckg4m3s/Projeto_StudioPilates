@@ -22,7 +22,7 @@ final TextEditingController _controllerData = TextEditingController();
 final TextEditingController _controllerRegime =
     TextEditingController(text: 'Mensal');
 
-int EtapaAtual = 1;
+int EtapaAtual = 0;
 
 class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   List<DataEnvio_Week_Horario> HorariosSelecionados = [];
@@ -189,12 +189,12 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
         children: [
           Center(
             child: Text(
-              "NOVO AGENDAMENTO",
+              "NOVO ALUNO",
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ),
           if (EtapaAtual == 0)
-            MainSpace(
+            PrimeiraEtapa(
                 HorariosSelecionados,
                 setState,
                 DefinirTamanho,
@@ -228,8 +228,8 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   }
 }
 
-Widget MainSpace(HorariosSelecionados, setState, DefinirTamanho, WindowWidth,
-    CheckSeSelecionado, AdicionarHorario, RemoverHorario) {
+Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
+    WindowWidth, CheckSeSelecionado, AdicionarHorario, RemoverHorario) {
   return Expanded(
       child: Column(
     children: [

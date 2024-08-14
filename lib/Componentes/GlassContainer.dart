@@ -8,6 +8,8 @@ class GlassContainer extends StatelessWidget {
 
   final Color? Cor;
 
+  final EdgeInsets? Padding;
+
   final double? MinWidth;
   final double? MinHeight;
   final double? MaxWidth;
@@ -16,18 +18,20 @@ class GlassContainer extends StatelessWidget {
   final double? BorderRadios;
   final double? Rotate;
 
-  const GlassContainer(
-      {super.key,
-      required this.Width,
-      required this.Height,
-      required this.Child,
-      required this.Cor,
-      this.MinWidth,
-      this.MinHeight,
-      this.MaxWidth,
-      this.MaxHeight,
-      this.BorderRadios,
-      this.Rotate});
+  const GlassContainer({
+    super.key,
+    required this.Width,
+    required this.Height,
+    required this.Child,
+    required this.Cor,
+    this.MinWidth,
+    this.MinHeight,
+    this.MaxWidth,
+    this.MaxHeight,
+    this.BorderRadios,
+    this.Rotate,
+    this.Padding,
+  });
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,6 +44,7 @@ class GlassContainer extends StatelessWidget {
         minWidth: MinWidth ?? double.minPositive,
       ),
       margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
+      padding: Padding ?? EdgeInsets.all(0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(BorderRadios ?? 10),
         gradient: RadialGradient(

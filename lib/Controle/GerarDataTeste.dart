@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, use_function_type_syntax_for_parameters, avoid_function_literals_in_foreach_calls, avoid_print
+// ignore_for_file: file_names, non_constant_identifier_names, use_function_type_syntax_for_parameters, avoid_function_literals_in_foreach_calls, avoid_print, unused_local_variable
 import 'dart:math';
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Controller.dart';
@@ -57,31 +57,54 @@ List<String> Sobrenomes = [
   'Gomes'
 ];
 
-List<DiaSemana> gerarDadosTeste() {
+gerarDadosTeste() {
+  int NumeroDeAlunos = 50;
   Random random = Random();
 
-  List<DiaSemana> dias = [];
+  for (var nrmAluno = 0; nrmAluno < NumeroDeAlunos; nrmAluno++) {
+    String NomeAluno =
+        '${Nomes[random.nextInt(Nomes.length)]} ${Sobrenomes[random.nextInt(Sobrenomes.length)]}';
 
-  for (var dia in diasSemana) {
-    List<Horario> horarios = [];
-    for (var hora in horariosFixos) {
-      List<int> alunos = [];
-      int Rand = random.nextInt(10);
-      for (int j = 0; j < (Rand >= 4 ? 4 : Rand); j++) {
-        String nome =
-            '${Nomes[random.nextInt(Nomes.length)]} ${Sobrenomes[random.nextInt(Sobrenomes.length)]}';
+    Aluno NovoAluno =
+        AlunosController().AdicionarAluno(Aluno(Id: -1, Nome: NomeAluno));
 
-        var AlunoRetorno = AlunosController().AdicionarAluno(Aluno(
-            Id: -1,
-            Nome: nome,
-            PresencaSemana: [Hora(Horario: hora, Presenca: false)]));
-        alunos.add(AlunoRetorno.Id);
+    String DiaDaSemanaRandom;
+    List<Hora> HorariosSelecionados = [];
+    List<DiaSemana> DiasDaSemana = Controller().Obter_Dias_Da_Semana();
+
+    while (HorariosSelecionados.length < 2) {
+      DiaDaSemanaRandom = diasSemana[random.nextInt(diasSemana.length)];
+
+      List<Horario> Horarios =
+          DiasDaSemana[random.nextInt(DiasDaSemana.length)].Horarios;
+
+      var Escolha = Horarios[random.nextInt(Horarios.length)];
+
+      if (Escolha.IdAlunos.length <
+              ConfiguracoesBasicas.LimiteAulasPorHorario &&
+          !Escolha.IdAlunos.contains(NovoAluno.Id)) {
+        HorariosSelecionados.add(
+          Hora(Horario: Escolha.Hora, Presenca: false),
+        );
+
+        Controller()
+            .Obter_Dia_porString(DiaDaSemanaRandom)
+            .Horarios
+            .firstWhere((e) => e.Hora == Escolha.Hora)
+            .AdicionarPessoa(NovoAluno.Id);
       }
-      horarios.add(Horario(Hora: hora, IdAlunos: alunos));
-    }
-    Controller().Adicionar_Dia_Da_Semana(dia, horarios);
-    dias.add(DiaSemana(Nome: dia, Horarios: horarios));
-  }
+      NovoAluno.SetPresencaSemana(HorariosSelecionados);
+      NovoAluno.SetAnotacoes("Sem anotações");
+      //UltimoPagamento: DateTime.parse(_controllerData.text),
+      NovoAluno.SetModeloNegocios('1');
 
-  return dias;
+      for (var element in HorariosSelecionados) {
+        Controller()
+            .Obter_Dia_porString(DiaDaSemanaRandom)
+            .Horarios
+            .firstWhere((e) => e.Hora == element.Horario)
+            .AdicionarPessoa(NovoAluno.Id);
+      }
+    }
+  }
 }

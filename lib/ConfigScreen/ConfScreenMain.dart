@@ -14,7 +14,7 @@ class ConfigScreen extends StatefulWidget {
   ConfigScreenState createState() => ConfigScreenState();
 }
 
-final List<String> Paginas = ["HORARIOS", "AGENDAMENTOS"];
+final List<String> Paginas = ["HORARIOS", "ALUNO"];
 String ShowPage = "NOVOAGENDAMENTO";
 bool DroweAberto = false;
 
@@ -202,7 +202,7 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
 Widget ConteudoTela(setState) {
   return ShowPage == "HORARIOS"
       ? HorarioScreen()
-      : ShowPage == "AGENDAMENTOS"
+      : ShowPage == "ALUNO"
           ? AgendamentoScreen(
               EnviarParaNovoAgendamento: () => {
                     setState(() {
