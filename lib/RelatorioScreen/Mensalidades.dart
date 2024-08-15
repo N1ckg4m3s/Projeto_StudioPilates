@@ -45,13 +45,19 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
           ),
-          GlassContainer(
-            Width: 0,
-            Height: (50 * (WindowWidth > 880 ? 1 : 2)) + 2,
-            Cor: Colors.transparent,
-            Child: GridView(
+          Container(
+            width: double.maxFinite,
+            height: (50 *
+                    (WindowWidth > 880
+                        ? 1
+                        : WindowWidth > 500
+                            ? 2
+                            : 3)) +
+                2,
+            color: Colors.transparent,
+            child: GridView(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    mainAxisExtent: 50,
+                    mainAxisExtent: WindowWidth > 500 ? 50 : 60,
                     crossAxisCount: WindowWidth > 880 ? 4 : 2),
                 children: Filtros.map((e) => TextButton(
                       onPressed: () => setState(() {

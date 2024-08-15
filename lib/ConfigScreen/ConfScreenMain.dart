@@ -4,7 +4,6 @@ import 'package:app_pilates/ConfigScreen/NovoAluno.dart';
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
-import 'package:flutter/widgets.dart';
 
 import 'Aluno.dart';
 import 'Horarios.dart';
@@ -17,7 +16,7 @@ class ConfigScreen extends StatefulWidget {
 }
 
 final List<String> Paginas = ["HORARIOS", "ALUNO"];
-String ShowPage = "NOVOAGENDAMENTO";
+String ShowPage = "ALUNO";
 bool DroweAberto = false;
 Aluno? DataParaSobre; // = Aluno(Id: -1, Nome: "TESTE SEM DATA");
 
@@ -60,17 +59,32 @@ class ConfigScreenState extends State<ConfigScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
                             Colors.black,
-                            Colors.black,
+                            Colors.black.withOpacity(.8),
                             Colors.transparent,
                           ], stops: [
                             0,
-                            .5,
-                            1
+                            .7,
+                            .8
                           ]),
                         ),
-                        padding: EdgeInsets.only(right: WindowWidth * .5),
-                        child: NavBar(WindowWidth, WindowHeight - 55, setState,
-                            EnviarParaInicio),
+                        child: Row(
+                          children: [
+                            NavBar(WindowWidth, WindowHeight, setState,
+                                EnviarParaInicio),
+                            TextButton(
+                                style: ButtonStyle(
+                                  overlayColor: MaterialStatePropertyAll(
+                                      Colors.transparent),
+                                ),
+                                onPressed: () => setState(() {
+                                      DroweAberto = false;
+                                    }),
+                                child: SizedBox(
+                                  width: WindowWidth - 240,
+                                  height: WindowHeight - 55,
+                                ))
+                          ],
+                        ),
                       )
                   ],
                 )

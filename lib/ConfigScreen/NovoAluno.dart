@@ -242,7 +242,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                 Data),
           if (EtapaAtual == 1) SegundaEtapa(selectDate, context, setState),
           BotoesFimPagina(Data, ProximaEtapa, SalvarNovoAgendamento,
-              RemoverAluno, EnviarParaInicio)
+              RemoverAluno, EnviarParaInicio, WindowWidth)
         ],
       ),
     );
@@ -311,7 +311,8 @@ Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
                                           : WindowWidth > 780
                                               ? 3
                                               : 2,
-                                      mainAxisExtent: 130),
+                                      mainAxisExtent:
+                                          WindowWidth > 500 ? 130 : 140),
                               children: D.Horarios.map(
                                 (e) => TextButton(
                                   onPressed: () => {
@@ -436,7 +437,7 @@ Widget SegundaEtapa(selectDate, context, setState) {
                           MaterialStateProperty.all(Colors.transparent),
                     ),
                     child: Container(
-                        margin: EdgeInsets.only(left: 20, right: 20),
+                        margin: EdgeInsets.only(left: 0, right: 0),
                         width: double.maxFinite,
                         child: GlassContainer(
                           Width: 0,
@@ -460,16 +461,16 @@ Widget SegundaEtapa(selectDate, context, setState) {
   );
 }
 
-Widget BotoesFimPagina(
-    Data, ProximaEtapa, SalvarNovoAgendamento, RemoverAluno, EnviarParaInicio) {
+Widget BotoesFimPagina(Data, ProximaEtapa, SalvarNovoAgendamento, RemoverAluno,
+    EnviarParaInicio, WindowWidth) {
   if (Data != null) {
     return GlassContainer(
         Width: 0,
-        Height: 52,
+        Height: WindowWidth > 500 ? 52 : 100,
         Cor: Colors.transparent,
         Child: GridView(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              mainAxisExtent: 50, crossAxisCount: 2),
+              mainAxisExtent: WindowWidth > 500 ? 50 : 60, crossAxisCount: 2),
           children: [
             TextButton(
               onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,

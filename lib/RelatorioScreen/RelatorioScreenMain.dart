@@ -5,7 +5,6 @@ import 'package:app_pilates/RelatorioScreen/FaltasGerais.dart';
 import 'package:app_pilates/RelatorioScreen/Mensalidades.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
-import 'package:flutter/widgets.dart';
 
 class RelatorioScreen extends StatefulWidget {
   const RelatorioScreen({super.key});
@@ -15,7 +14,7 @@ class RelatorioScreen extends StatefulWidget {
 }
 
 final List<String> Paginas = ["FALTAS GERAIS", "MENSALIDADES"];
-String ShowPage = "MENSALIDADES";
+String ShowPage = "FALTAS GERAIS";
 bool DroweAberto = false;
 
 class RelatorioScreenState extends State<RelatorioScreen> {
@@ -57,17 +56,32 @@ class RelatorioScreenState extends State<RelatorioScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
                             Colors.black,
-                            Colors.black,
+                            Colors.black.withOpacity(.8),
                             Colors.transparent,
                           ], stops: [
                             0,
-                            .5,
-                            1
+                            .7,
+                            .8
                           ]),
                         ),
-                        padding: EdgeInsets.only(right: WindowWidth * .5),
-                        child: NavBar(WindowWidth, WindowHeight - 55, setState,
-                            EnviarParaInicio),
+                        child: Row(
+                          children: [
+                            NavBar(WindowWidth, WindowHeight, setState,
+                                EnviarParaInicio),
+                            TextButton(
+                                style: ButtonStyle(
+                                  overlayColor: MaterialStatePropertyAll(
+                                      Colors.transparent),
+                                ),
+                                onPressed: () => setState(() {
+                                      DroweAberto = false;
+                                    }),
+                                child: SizedBox(
+                                  width: WindowWidth - 240,
+                                  height: WindowHeight - 55,
+                                ))
+                          ],
+                        ),
                       )
                   ],
                 )

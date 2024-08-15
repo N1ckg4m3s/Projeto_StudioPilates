@@ -25,7 +25,7 @@ class HorarioScreen extends StatefulWidget {
 String DiaSemanaSelecionado = "SEGUNDA-FEIRA";
 String TopicoSelecionado = "06:00";
 DiaSemana? Dia;
-bool DroweAberto = true;
+bool DroweAberto = false;
 
 class StateHorarioScreen extends State<HorarioScreen> {
   @override
@@ -93,18 +93,32 @@ class StateHorarioScreen extends State<HorarioScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(colors: [
                             Colors.black,
-                            Colors.black,
+                            Colors.black.withOpacity(.8),
                             Colors.transparent,
                           ], stops: [
                             0,
-                            .5,
-                            1
+                            .7,
+                            .8
                           ]),
                         ),
-                        padding:
-                            EdgeInsets.only(right: (WindowWidth * .5) - 20),
-                        child: NavBar(WindowWidth, WindowHeight, setState,
-                            EnviarParaInicio),
+                        child: Row(
+                          children: [
+                            NavBar(WindowWidth, WindowHeight, setState,
+                                EnviarParaInicio),
+                            TextButton(
+                                style: ButtonStyle(
+                                  overlayColor: MaterialStatePropertyAll(
+                                      Colors.transparent),
+                                ),
+                                onPressed: () => setState(() {
+                                      DroweAberto = false;
+                                    }),
+                                child: SizedBox(
+                                  width: WindowWidth - 240,
+                                  height: WindowHeight - 55,
+                                ))
+                          ],
+                        ),
                       )
                   ],
                 )

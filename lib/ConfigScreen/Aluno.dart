@@ -101,7 +101,8 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
           Expanded(
               child: GridView(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                mainAxisExtent: 85, crossAxisCount: QuantidadeItens),
+                mainAxisExtent: (WindowWidth > 500 ? 85 : 103),
+                crossAxisCount: QuantidadeItens),
             padding: EdgeInsets.only(right: 10),
             children: AlunosController()
                 .ObterAlunos()
@@ -121,7 +122,7 @@ Widget Card(WindowWidth, Aluno Data, EnviarParaSobre) {
       onPressed: () => {EnviarParaSobre(Data)},
       child: GlassContainer(
           Width: 300,
-          Height: 64,
+          Height: 0,
           Padding: EdgeInsets.all(10),
           Cor: Colors.white,
           Child: Column(
