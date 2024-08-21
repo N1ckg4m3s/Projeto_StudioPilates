@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, depend_on_referenced_packages, avoid_print, unnecessary_brace_in_string_interps
+// ignore_for_file: non_constant_identifier_names, file_names, depend_on_referenced_packages
 
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';

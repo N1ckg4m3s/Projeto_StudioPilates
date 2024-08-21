@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:app_pilates/ConfigScreen/ConfScreenMain.dart';
 import 'package:app_pilates/Controle/IniciarVareaveis.dart';
 import 'package:app_pilates/HorarioScreen.dart';

@@ -1,4 +1,5 @@
-// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_interpolation_to_compose_strings, unnecessary_null_comparison, unrelated_type_equality_checks
+// ignore_for_file: non_constant_identifier_names, file_names
+
 import 'package:app_pilates/Controle/DataBase.dart';
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:flutter/foundation.dart';

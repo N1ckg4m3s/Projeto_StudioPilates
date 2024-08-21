@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, file_names, avoid_init_to_null
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
@@ -17,7 +17,7 @@ class ConfigScreen extends StatefulWidget {
 final List<String> Paginas = ["HORARIOS", "ALUNO"];
 final ValueNotifier<String> showPageNotifier = ValueNotifier("ALUNO");
 final ValueNotifier<bool> droweAbertoNotifier = ValueNotifier(false);
-Aluno? DataParaSobre = null;
+Aluno? DataParaSobre;
 
 class ConfigScreenState extends State<ConfigScreen> {
   @override

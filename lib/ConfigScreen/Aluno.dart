@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, must_be_immutable, prefer_typing_uninitialized_variables, no_logic_in_create_state
+// ignore_for_file: non_constant_identifier_names, file_names, must_be_immutable, prefer_typing_uninitialized_variables, no_logic_in_create_state
 
 import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
@@ -54,8 +54,6 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
-
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
 
@@ -68,7 +66,7 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
                 : 1; //
 
     return GlassContainer(
-      Cor: Color.fromRGBO(255, 255, 255, 1),
+      Cor: const Color.fromRGBO(255, 255, 255, 1),
       Width: WindowWidth > 601
           ? (WindowWidth * .2) >= 200
               ? (WindowWidth * .8) - 30
@@ -77,7 +75,7 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
       Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
       Child: Column(
         children: [
-          Center(
+          const Center(
             child: Text(
               "ALUNOS",
               style: TextStyle(color: Colors.white, fontSize: 25),
@@ -88,7 +86,7 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
             style: ButtonStyle(
               overlayColor: MaterialStateProperty.all(Colors.transparent),
             ),
-            child: GlassContainer(
+            child: const GlassContainer(
               Cor: Color.fromRGBO(255, 255, 255, 1),
               Width: 0,
               Height: 40,
@@ -104,16 +102,16 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
               future: AlunosController().obterAlunos(),
               builder: ((context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CarregandoDataBar();
+                  return const CarregandoDataBar();
                 } else if (snapshot.hasError) {
-                  return Text("Error obterAlunos");
+                  return const Text("Error obterAlunos");
                 }
                 return Expanded(
                     child: GridView(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       mainAxisExtent: (WindowWidth > 500 ? 85 : 103),
                       crossAxisCount: QuantidadeItens),
-                  padding: EdgeInsets.only(right: 10),
+                  padding: const EdgeInsets.only(right: 10),
                   children: snapshot.data!
                       .map((e) => Card(WindowWidth, e, EnviarParaSobre))
                       .toList(),
@@ -131,13 +129,13 @@ Widget Card(WindowWidth, Aluno Data, EnviarParaSobre) {
   }
 
   return TextButton(
-      style: ButtonStyle(
+      style: const ButtonStyle(
           overlayColor: MaterialStatePropertyAll(Colors.transparent)),
       onPressed: () => {EnviarParaSobre(Data)},
       child: GlassContainer(
           Width: 300,
           Height: 0,
-          Padding: EdgeInsets.all(10),
+          Padding: const EdgeInsets.all(10),
           Cor: Colors.white,
           Child: Column(
             children: [
@@ -145,28 +143,30 @@ Widget Card(WindowWidth, Aluno Data, EnviarParaSobre) {
                   future: GerarSiglaAlunos(Data.Id),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CarregandoDataBar();
+                      return const CarregandoDataBar();
                     } else if (snapshot.hasData) {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             Data.GetUltimoPagamentoFormatoYMD(),
-                            style: TextStyle(color: Colors.white, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 10),
                           ),
                           Text(
                             snapshot.data!,
-                            style: TextStyle(color: Colors.white, fontSize: 10),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 10),
                           )
                         ],
                       );
                     } else {
-                      return Text("Error GerarSiglaAlunos");
+                      return const Text("Error GerarSiglaAlunos");
                     }
                   }),
               Text(
                 Data.GetNome().toUpperCase(),
-                style: TextStyle(color: Colors.white, fontSize: 20),
+                style: const TextStyle(color: Colors.white, fontSize: 20),
               )
             ],
           )));

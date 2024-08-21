@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, unused_element, prefer_const_literals_to_create_immutables, prefer_const_constructors, file_names
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
@@ -29,7 +29,6 @@ int AjustarQuantidades(MaxW) {
 class MensalidadesScreenState extends State<MensalidadesScreen> {
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
     return GlassContainer(
@@ -41,7 +40,7 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
             : WindowWidth - 20,
         Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
         Child: Column(children: [
-          Center(
+          const Center(
             child: Text(
               "MENSALIDADES",
               style: TextStyle(color: Colors.white, fontSize: 25),
@@ -70,7 +69,7 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                             MaterialStateProperty.all(Colors.transparent),
                       ),
                       child: Container(
-                          margin: EdgeInsets.only(left: 20, right: 20),
+                          margin: const EdgeInsets.only(left: 20, right: 20),
                           width: double.maxFinite,
                           child: GlassContainer(
                             Width: 0,
@@ -79,13 +78,13 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                               child: Text(e,
                                   style: TextStyle(
                                     color: FiltroAtual != e
-                                        ? Color.fromRGBO(255, 255, 255, 1)
-                                        : Color.fromRGBO(173, 99, 173, 1),
+                                        ? const Color.fromRGBO(255, 255, 255, 1)
+                                        : const Color.fromRGBO(173, 99, 173, 1),
                                   )),
                             ),
                             Cor: FiltroAtual != e
-                                ? Color.fromRGBO(255, 255, 255, 1)
-                                : Color.fromRGBO(173, 99, 173, 1),
+                                ? const Color.fromRGBO(255, 255, 255, 1)
+                                : const Color.fromRGBO(173, 99, 173, 1),
                           )),
                     )).toList()),
           ),
@@ -94,11 +93,11 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
               future: AlunosController().obterMensalidades(FiltroAtual),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CarregandoDataBar(); // ou qualquer widget de carregamento
+                  return const CarregandoDataBar(); // ou qualquer widget de carregamento
                 } else if (snapshot.hasError) {
-                  return Center(child: Text("Erro ao carregar dados"));
+                  return const Center(child: Text("Erro ao carregar dados"));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text("Nenhum aluno encontrado"));
+                  return const Center(child: Text("Nenhum aluno encontrado"));
                 }
 
                 // Agora temos os dados

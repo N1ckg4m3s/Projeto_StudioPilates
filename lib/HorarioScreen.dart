@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unnecessary_brace_in_string_interps, prefer_function_declarations_over_variables, unused_local_variable, curly_braces_in_flow_control_structures, dead_code
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
@@ -68,15 +68,15 @@ class StateHorarioScreen extends State<HorarioScreen> {
     var WindowWidth = MediaQuery.of(context).size.width;
     double WindowHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(55, 46, 46, 1),
+      backgroundColor: const Color.fromRGBO(55, 46, 46, 1),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 600)
+          if (constraints.maxWidth < 600) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                    margin: EdgeInsets.only(top: 20),
+                    margin: const EdgeInsets.only(top: 20),
                     width: 50,
                     height: 35,
                     child: IconButton(
@@ -88,7 +88,7 @@ class StateHorarioScreen extends State<HorarioScreen> {
                               droweAbertoNotifier.value =
                                   !droweAbertoNotifier.value,
                             },
-                        icon: Icon(Icons.menu))),
+                        icon: const Icon(Icons.menu))),
                 Stack(
                   children: [
                     ValueListenableBuilder<String>(
@@ -116,7 +116,7 @@ class StateHorarioScreen extends State<HorarioScreen> {
                                   Colors.black,
                                   Colors.black.withOpacity(.8),
                                   Colors.transparent,
-                                ], stops: [
+                                ], stops: const [
                                   0,
                                   .7,
                                   .8
@@ -131,7 +131,7 @@ class StateHorarioScreen extends State<HorarioScreen> {
                                   }, setState, EnviarParaInicio,
                                       topicoSelecionadoNotifier.value),
                                   TextButton(
-                                      style: ButtonStyle(
+                                      style: const ButtonStyle(
                                         overlayColor: MaterialStatePropertyAll(
                                             Colors.transparent),
                                       ),
@@ -145,13 +145,13 @@ class StateHorarioScreen extends State<HorarioScreen> {
                               ),
                             );
                           }
-                          return SizedBox.shrink();
+                          return const SizedBox.shrink();
                         }),
                   ],
                 )
               ],
             );
-          else
+          } else {
             return Row(
               children: [
                 NavBar(WindowWidth, WindowHeight, (newTopico) {
@@ -167,6 +167,7 @@ class StateHorarioScreen extends State<HorarioScreen> {
                 ),
               ],
             );
+          }
         },
       ),
     );
@@ -176,7 +177,7 @@ class StateHorarioScreen extends State<HorarioScreen> {
 Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
     EnviarParaInicio, TopicoSelecionado) {
   return GlassContainer(
-    Cor: Color.fromRGBO(255, 255, 255, 1),
+    Cor: const Color.fromRGBO(255, 255, 255, 1),
     Width: (WindowWidth * .2),
     MinWidth: 200,
     Height: WindowHeight,
@@ -184,7 +185,7 @@ Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
       children: [
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(right: 10),
+            padding: const EdgeInsets.only(right: 10),
             children: Dia!.Horarios.map(
               (e) {
                 return ValueListenableBuilder<String>(
@@ -204,8 +205,8 @@ Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
                       ),
                       child: GlassContainer(
                         Cor: (TopicoSelecionado != (e.Hora)
-                            ? Color.fromRGBO(255, 255, 255, 1)
-                            : Color.fromRGBO(173, 99, 173, 1)),
+                            ? const Color.fromRGBO(255, 255, 255, 1)
+                            : const Color.fromRGBO(173, 99, 173, 1)),
                         Width: 0,
                         Rotate: 7,
                         MinWidth: 0,
@@ -215,8 +216,8 @@ Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
                             e.Hora,
                             style: TextStyle(
                               color: (TopicoSelecionado != (e.Hora)
-                                  ? Color.fromRGBO(255, 255, 255, 1)
-                                  : Color.fromRGBO(173, 99, 173, 1)),
+                                  ? const Color.fromRGBO(255, 255, 255, 1)
+                                  : const Color.fromRGBO(173, 99, 173, 1)),
                             ),
                           ),
                         ),
@@ -234,12 +235,12 @@ Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
             overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
           child: GlassContainer(
-            Cor: Color.fromRGBO(255, 255, 255, 1),
+            Cor: const Color.fromRGBO(255, 255, 255, 1),
             Width: (WindowWidth * .2),
             MinWidth: 200,
             Rotate: 7,
             Height: 35,
-            Child: Center(
+            Child: const Center(
               child: Text(
                 "VOLTAR",
                 style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
@@ -262,7 +263,7 @@ Widget ConteudoTela(
   String DiaSemanaSelecionado,
 ) {
   return GlassContainer(
-    Cor: Color.fromRGBO(255, 255, 255, 1),
+    Cor: const Color.fromRGBO(255, 255, 255, 1),
     Width: Tamanho
         ? WindowWidth - 20
         : (WindowWidth * .2) >= 200
@@ -272,14 +273,14 @@ Widget ConteudoTela(
     Child: Column(
       children: [
         Text(
-          '${DiaSemanaSelecionado} ${TopicoSelecionado}',
-          style: TextStyle(
+          '$DiaSemanaSelecionado $TopicoSelecionado',
+          style: const TextStyle(
               color: Colors.white, fontSize: 25, fontWeight: FontWeight.normal),
         ),
         Expanded(
           child: ListView(
             children: Dia?.Horarios.isEmpty ?? true
-                ? [Text("")]
+                ? [const Text("")]
                 : Dia!.Horarios
                     .firstWhere((element) => element.Hora == TopicoSelecionado)
                     .IdAlunos
@@ -290,11 +291,11 @@ Widget ConteudoTela(
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return CarregandoDataBar();
+                            return const CarregandoDataBar();
                           } else if (snapshot.hasError) {
-                            return Text("ERROR");
+                            return const Text("ERROR");
                           } else if (!snapshot.hasData) {
-                            return Text("No data");
+                            return const Text("No data");
                           }
                           final aluno = snapshot.data!;
 
@@ -306,11 +307,11 @@ Widget ConteudoTela(
                             builder: (context, presencaSnapshot) {
                               if (presencaSnapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return CarregandoDataBar();
+                                return const CarregandoDataBar();
                               } else if (presencaSnapshot.hasError) {
-                                return Text("ERROR");
+                                return const Text("ERROR");
                               } else if (!presencaSnapshot.hasData) {
-                                return Text("No data");
+                                return const Text("No data");
                               }
 
                               bool presenca = presencaSnapshot.data!;
@@ -338,8 +339,8 @@ Widget ConteudoTela(
                                 ),
                                 child: GlassContainer(
                                   Cor: presenca
-                                      ? Color.fromRGBO(12, 255, 32, 1)
-                                      : Color.fromRGBO(255, 255, 255, 1),
+                                      ? const Color.fromRGBO(12, 255, 32, 1)
+                                      : const Color.fromRGBO(255, 255, 255, 1),
                                   Rotate: 20,
                                   Width: 0,
                                   Height: 55,
@@ -348,8 +349,10 @@ Widget ConteudoTela(
                                       aluno.Nome,
                                       style: TextStyle(
                                         color: presenca
-                                            ? Color.fromRGBO(12, 255, 32, 1)
-                                            : Color.fromRGBO(255, 255, 255, 1),
+                                            ? const Color.fromRGBO(
+                                                12, 255, 32, 1)
+                                            : const Color.fromRGBO(
+                                                255, 255, 255, 1),
                                         fontSize: 20,
                                       ),
                                     ),

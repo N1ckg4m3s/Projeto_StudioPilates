@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, camel_case_types, prefer_interpolation_to_compose_strings, avoid_print, unrelated_type_equality_checks
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:app_pilates/Controle/AlunosController.dart';
 

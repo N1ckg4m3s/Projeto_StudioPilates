@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, depend_on_referenced_packages, non_constant_identifier_names, collection_methods_unrelated_type
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';

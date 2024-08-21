@@ -1,6 +1,5 @@
-// ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, prefer_const_literals_to_create_immutables, unused_import
+// ignore_for_file: non_constant_identifier_names, file_names
 
-import 'package:app_pilates/ConfigScreen/NovoAluno.dart';
 import 'package:app_pilates/RelatorioScreen/FaltasGerais.dart';
 import 'package:app_pilates/RelatorioScreen/Mensalidades.dart';
 import 'package:flutter/material.dart';
@@ -31,14 +30,14 @@ class RelatorioScreenState extends State<RelatorioScreen> {
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-        backgroundColor: Color.fromRGBO(55, 46, 46, 1),
+        backgroundColor: const Color.fromRGBO(55, 46, 46, 1),
         body: LayoutBuilder(builder: (context, constraints) {
           if (constraints.maxWidth < 600) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                    margin: EdgeInsets.only(top: 20),
+                    margin: const EdgeInsets.only(top: 20),
                     width: 50,
                     height: 35,
                     child: IconButton(
@@ -51,7 +50,7 @@ class RelatorioScreenState extends State<RelatorioScreen> {
                                 DroweAberto = !DroweAberto;
                               })
                             },
-                        icon: Icon(Icons.menu))),
+                        icon: const Icon(Icons.menu))),
                 Stack(
                   children: [
                     ConteudoTela(setState),
@@ -64,7 +63,7 @@ class RelatorioScreenState extends State<RelatorioScreen> {
                             Colors.black,
                             Colors.black.withOpacity(.8),
                             Colors.transparent,
-                          ], stops: [
+                          ], stops: const [
                             0,
                             .7,
                             .8
@@ -75,7 +74,7 @@ class RelatorioScreenState extends State<RelatorioScreen> {
                             NavBar(WindowWidth, WindowHeight, setState,
                                 EnviarParaInicio),
                             TextButton(
-                                style: ButtonStyle(
+                                style: const ButtonStyle(
                                   overlayColor: MaterialStatePropertyAll(
                                       Colors.transparent),
                                 ),
@@ -105,7 +104,7 @@ class RelatorioScreenState extends State<RelatorioScreen> {
 
 Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
   return GlassContainer(
-      Cor: Color.fromRGBO(255, 255, 255, 1),
+      Cor: const Color.fromRGBO(255, 255, 255, 1),
       Width: (WindowWidth * .2),
       MinWidth: 200,
       Height: 0,
@@ -113,7 +112,7 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
         children: [
           Expanded(
             child: ListView(
-                padding: EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.only(right: 10),
                 children: Paginas.map((e) => TextButton(
                     onPressed: () => {
                           setState(() {
@@ -126,8 +125,8 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
                     ),
                     child: GlassContainer(
                       Cor: e != ShowPage
-                          ? Color.fromRGBO(255, 255, 255, 1)
-                          : Color.fromRGBO(173, 99, 173, 1),
+                          ? const Color.fromRGBO(255, 255, 255, 1)
+                          : const Color.fromRGBO(173, 99, 173, 1),
                       Width: 0,
                       Rotate: 7,
                       MinWidth: 0,
@@ -135,7 +134,7 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
                       Child: Center(
                         child: Text(
                           e,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Color.fromRGBO(255, 255, 255, 1),
                           ),
                         ),
@@ -148,12 +147,12 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
               overlayColor: MaterialStateProperty.all(Colors.transparent),
             ),
             child: GlassContainer(
-              Cor: Color.fromRGBO(255, 255, 255, 1),
+              Cor: const Color.fromRGBO(255, 255, 255, 1),
               Width: (WindowWidth * .2),
               MinWidth: 200,
               Rotate: 7,
               Height: 35,
-              Child: Center(
+              Child: const Center(
                 child: Text(
                   "VOLTAR",
                   style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
@@ -167,8 +166,8 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
 
 Widget ConteudoTela(setState) {
   return ShowPage == "FALTAS GERAIS"
-      ? FaltasGeraisScreen()
+      ? const FaltasGeraisScreen()
       : ShowPage == "MENSALIDADES"
-          ? MensalidadesScreen()
-          : Text("Deu B.O aqui");
+          ? const MensalidadesScreen()
+          : const Text("Deu B.O aqui");
 }

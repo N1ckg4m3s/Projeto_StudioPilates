@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, unused_element, prefer_const_literals_to_create_immutables, prefer_const_constructors, file_names
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
@@ -25,7 +25,6 @@ int AjustarQuantidades(MaxW) {
 class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
 
@@ -36,11 +35,11 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
               ? (WindowWidth * .8) - 30
               : (WindowWidth - 230)
           : WindowWidth - 20,
-      Padding: EdgeInsets.all(10),
+      Padding: const EdgeInsets.all(10),
       Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
       Child: Column(
         children: [
-          Center(
+          const Center(
             child: Text(
               "FALTAS",
               style: TextStyle(color: Colors.white, fontSize: 25),
@@ -51,11 +50,11 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
             future: AlunosController().obterFaltas(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CarregandoDataBar();
+                return const CarregandoDataBar();
               } else if (snapshot.hasError) {
-                return Center(child: Text("Erro ao carregar dados"));
+                return const Center(child: Text("Erro ao carregar dados"));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text("Nenhum aluno com falta"));
+                return const Center(child: Text("Nenhum aluno com falta"));
               } else {
                 List<Map<String, dynamic>> faltas = snapshot.data!;
                 return GridView(
@@ -67,7 +66,7 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
                     return Text(
                       '${falta['nome']}: [ ${falta['dia']} - ${falta['horario']} ]'
                           .toUpperCase(),
-                      style: TextStyle(color: Colors.white, fontSize: 12),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
                     );
                   }).toList(),
                 );

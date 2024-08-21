@@ -1,4 +1,5 @@
-// ignore_for_file: file_names, prefer_typing_uninitialized_variables, non_constant_identifier_names, prefer_const_constructors, avoid_print, must_be_immutable
+// ignore_for_file: non_constant_identifier_names, file_names
+
 import 'package:flutter/material.dart';
 
 class GlassContainer extends StatelessWidget {
@@ -43,12 +44,12 @@ class GlassContainer extends StatelessWidget {
         maxWidth: MaxWidth ?? double.maxFinite,
         minWidth: MinWidth ?? double.minPositive,
       ),
-      margin: EdgeInsets.only(left: 10, top: 10, bottom: 10),
-      padding: Padding ?? EdgeInsets.all(0),
+      margin: const EdgeInsets.only(left: 10, top: 10, bottom: 10),
+      padding: Padding ?? const EdgeInsets.all(0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(BorderRadios ?? 10),
         gradient: RadialGradient(
-          center: Alignment(-0.5, -0.5),
+          center: const Alignment(-0.5, -0.5),
           radius: Rotate ?? 2,
           colors: [
             Color.fromRGBO(Cor!.red, Cor!.green, Cor!.blue, .1),
@@ -59,11 +60,11 @@ class GlassContainer extends StatelessWidget {
         ),
         border: Border(
           top: BorderSide(
-            color: Cor ?? Color.fromRGBO(0, 255, 255, 1),
+            color: Cor ?? const Color.fromRGBO(0, 255, 255, 1),
             width: 1,
           ),
           left: BorderSide(
-            color: Cor ?? Color.fromRGBO(0, 255, 255, 1),
+            color: Cor ?? const Color.fromRGBO(0, 255, 255, 1),
             width: 1,
           ),
         ),

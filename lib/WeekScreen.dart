@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unused_element, curly_braces_in_flow_control_structures
+// ignore_for_file: non_constant_identifier_names, file_names
 
 import 'package:app_pilates/Controle/Controller.dart';
 import 'Controle/Classes.dart';
@@ -34,7 +34,7 @@ class StateWeekScreen extends State<WeekScreen> {
     double windowHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(55, 46, 46, 1),
+      backgroundColor: const Color.fromRGBO(55, 46, 46, 1),
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 600) {
@@ -42,7 +42,7 @@ class StateWeekScreen extends State<WeekScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: EdgeInsets.only(top: 20),
+                  margin: const EdgeInsets.only(top: 20),
                   width: 50,
                   height: 35,
                   child: IconButton(
@@ -53,7 +53,7 @@ class StateWeekScreen extends State<WeekScreen> {
                     onPressed: () {
                       droweAbertoNotifier.value = !droweAbertoNotifier.value;
                     },
-                    icon: Icon(Icons.menu),
+                    icon: const Icon(Icons.menu),
                   ),
                 ),
                 Stack(
@@ -89,7 +89,7 @@ class StateWeekScreen extends State<WeekScreen> {
                                   Colors.black.withOpacity(.8),
                                   Colors.transparent
                                 ],
-                                stops: [0, .7, .8],
+                                stops: const [0, .7, .8],
                               ),
                             ),
                             child: Row(
@@ -122,7 +122,7 @@ class StateWeekScreen extends State<WeekScreen> {
                             ),
                           );
                         } else {
-                          return SizedBox.shrink();
+                          return const SizedBox.shrink();
                         }
                       },
                     ),
@@ -176,7 +176,7 @@ Widget NavBar(
   VoidCallback enviarParaRelatorios,
 ) {
   return GlassContainer(
-    Cor: Color.fromRGBO(255, 255, 255, 1),
+    Cor: const Color.fromRGBO(255, 255, 255, 1),
     Width: (windowWidth * .2),
     MinWidth: 200,
     Height: windowHeight,
@@ -184,7 +184,7 @@ Widget NavBar(
       children: [
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(right: 10),
+            padding: const EdgeInsets.only(right: 10),
             children: InfoNavBar.map((e) {
               return ValueListenableBuilder<String>(
                 valueListenable: topicoSelecionadoNotifier,
@@ -197,8 +197,8 @@ Widget NavBar(
                     ),
                     child: GlassContainer(
                       Cor: (topicoSelecionado != e
-                          ? Color.fromRGBO(255, 255, 255, 1)
-                          : Color.fromRGBO(173, 99, 173, 1)),
+                          ? const Color.fromRGBO(255, 255, 255, 1)
+                          : const Color.fromRGBO(173, 99, 173, 1)),
                       Width: 0,
                       Rotate: 7,
                       MinWidth: 0,
@@ -208,8 +208,8 @@ Widget NavBar(
                           e,
                           style: TextStyle(
                             color: (topicoSelecionado != e
-                                ? Color.fromRGBO(255, 255, 255, 1)
-                                : Color.fromRGBO(173, 99, 173, 1)),
+                                ? const Color.fromRGBO(255, 255, 255, 1)
+                                : const Color.fromRGBO(173, 99, 173, 1)),
                           ),
                         ),
                       ),
@@ -226,12 +226,12 @@ Widget NavBar(
             overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
           child: GlassContainer(
-            Cor: Color.fromRGBO(255, 255, 255, 1),
+            Cor: const Color.fromRGBO(255, 255, 255, 1),
             Width: (windowWidth * .2),
             MinWidth: 200,
             Rotate: 7,
             Height: 35,
-            Child: Center(
+            Child: const Center(
               child: Text(
                 "CONFIGURAÇÕES",
                 style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
@@ -245,12 +245,12 @@ Widget NavBar(
             overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
           child: GlassContainer(
-            Cor: Color.fromRGBO(255, 255, 255, 1),
+            Cor: const Color.fromRGBO(255, 255, 255, 1),
             Width: (windowWidth * .2),
             MinWidth: 200,
             Rotate: 7,
             Height: 35,
-            Child: Center(
+            Child: const Center(
               child: Text(
                 "RELATORIO SEMANAL",
                 style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
@@ -275,7 +275,7 @@ Widget ConteudoTela(
     future: Controller().obterConfiguracoes(),
     builder: (context, AsyncSnapshot<Configuracoes> snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
+        return const Center(child: CircularProgressIndicator());
       } else if (snapshot.hasError) {
         return Center(
             child:
@@ -283,7 +283,7 @@ Widget ConteudoTela(
       } else if (snapshot.hasData) {
         var configs = snapshot.data!;
         return GlassContainer(
-          Cor: Color.fromRGBO(255, 255, 255, 1),
+          Cor: const Color.fromRGBO(255, 255, 255, 1),
           Width: tamanho
               ? windowWidth - 20
               : (windowWidth * .2) >= 200
@@ -294,7 +294,7 @@ Widget ConteudoTela(
             children: [
               Text(
                 topicoSelecionado,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.white,
                     fontSize: 25,
                     fontWeight: FontWeight.normal),
@@ -310,9 +310,10 @@ Widget ConteudoTela(
                           (context, AsyncSnapshot<Horario> horarioSnapshot) {
                         if (horarioSnapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         } else if (horarioSnapshot.hasError) {
-                          return Center(
+                          return const Center(
                               child: Text('Erro ao carregar horários'));
                         } else if (horarioSnapshot.hasData) {
                           var horario = horarioSnapshot.data!;
@@ -321,11 +322,11 @@ Widget ConteudoTela(
                             builder: (context, AsyncSnapshot<String> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                return CircularProgressIndicator();
+                                return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
                                 return Text('Erro: ${snapshot.error}');
                               } else if (!snapshot.hasData) {
-                                return Text('Nenhum dado disponível');
+                                return const Text('Nenhum dado disponível');
                               }
                               return TextButton(
                                 onPressed: () => enviarParaHorarios(
@@ -335,7 +336,7 @@ Widget ConteudoTela(
                                       Colors.transparent),
                                 ),
                                 child: GlassContainer(
-                                  Cor: Color.fromRGBO(255, 255, 255, 1),
+                                  Cor: const Color.fromRGBO(255, 255, 255, 1),
                                   Rotate: 20,
                                   Width: 0,
                                   Height: 57,
@@ -344,14 +345,14 @@ Widget ConteudoTela(
                                       children: [
                                         Text(
                                           '${HoraQueTrabalha <= 9 ? '0$HoraQueTrabalha' : HoraQueTrabalha}:00',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 20),
                                         ),
                                         Text(
                                           snapshot.data!,
                                           overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 15),
                                         ),
@@ -363,7 +364,7 @@ Widget ConteudoTela(
                             },
                           );
                         } else {
-                          return Center(
+                          return const Center(
                               child: Text('Nenhum horário disponível'));
                         }
                       },
@@ -375,7 +376,7 @@ Widget ConteudoTela(
           ),
         );
       } else {
-        return Center(child: Text('Nenhum dado disponível'));
+        return const Center(child: Text('Nenhum dado disponível'));
       }
     },
   );

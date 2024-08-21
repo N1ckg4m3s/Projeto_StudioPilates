@@ -1,7 +1,7 @@
-// ignore_for_file: non_constant_identifier_names, file_names, avoid_print
+// ignore_for_file: non_constant_identifier_names, file_names
+
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
-import 'package:app_pilates/Controle/DataBase.dart';
 
 List<String> diasSemana = [
   "SEGUNDA-FEIRA",
