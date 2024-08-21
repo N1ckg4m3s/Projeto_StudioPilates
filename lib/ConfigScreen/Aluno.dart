@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, must_be_immutable, prefer_typing_uninitialized_variables, no_logic_in_create_state
 
+import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
@@ -33,8 +34,9 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
     required this.EnviarParaSobre,
   });
 
-  double ArrumarHeight() {
-    var HorasWork = Controller().ObterConfiguracoes().HorasTrabalhadas.length;
+  Future<double> ArrumarHeight() async {
+    Configuracoes configs = await Controller().obterConfiguracoes();
+    var HorasWork = configs.HorasTrabalhadas.length;
     if (HorasWork <= 4) {
       return 150;
     }
@@ -98,17 +100,25 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
               ),
             ),
           ),
-          Expanded(
-              child: GridView(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                mainAxisExtent: (WindowWidth > 500 ? 85 : 103),
-                crossAxisCount: QuantidadeItens),
-            padding: EdgeInsets.only(right: 10),
-            children: AlunosController()
-                .ObterAlunos()
-                .map((e) => Card(WindowWidth, e, EnviarParaSobre))
-                .toList(),
-          ))
+          FutureBuilder(
+              future: AlunosController().obterAlunos(),
+              builder: ((context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CarregandoDataBar();
+                } else if (snapshot.hasError) {
+                  return Text("Error obterAlunos");
+                }
+                return Expanded(
+                    child: GridView(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      mainAxisExtent: (WindowWidth > 500 ? 85 : 103),
+                      crossAxisCount: QuantidadeItens),
+                  padding: EdgeInsets.only(right: 10),
+                  children: snapshot.data!
+                      .map((e) => Card(WindowWidth, e, EnviarParaSobre))
+                      .toList(),
+                ));
+              }))
         ],
       ),
     );
@@ -116,6 +126,10 @@ class AgendamentoScreenState extends State<AgendamentoScreen> {
 }
 
 Widget Card(WindowWidth, Aluno Data, EnviarParaSobre) {
+  Future<String> GerarSiglaAlunos(int Id) async {
+    return Controller().gerarSiglasDoAluno(Id);
+  }
+
   return TextButton(
       style: ButtonStyle(
           overlayColor: MaterialStatePropertyAll(Colors.transparent)),
@@ -127,19 +141,29 @@ Widget Card(WindowWidth, Aluno Data, EnviarParaSobre) {
           Cor: Colors.white,
           Child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    Data.GetUltimoPagamentoFormatoYMD(),
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  ),
-                  Text(
-                    Controller().Gerar_Siglas_Do_Aluno(Data.Id),
-                    style: TextStyle(color: Colors.white, fontSize: 10),
-                  )
-                ],
-              ),
+              FutureBuilder(
+                  future: GerarSiglaAlunos(Data.Id),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CarregandoDataBar();
+                    } else if (snapshot.hasData) {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            Data.GetUltimoPagamentoFormatoYMD(),
+                            style: TextStyle(color: Colors.white, fontSize: 10),
+                          ),
+                          Text(
+                            snapshot.data!,
+                            style: TextStyle(color: Colors.white, fontSize: 10),
+                          )
+                        ],
+                      );
+                    } else {
+                      return Text("Error GerarSiglaAlunos");
+                    }
+                  }),
               Text(
                 Data.GetNome().toUpperCase(),
                 style: TextStyle(color: Colors.white, fontSize: 20),

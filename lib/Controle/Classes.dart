@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, non_constant_identifier_names, camel_case_types, prefer_interpolation_to_compose_strings, avoid_print
+// ignore_for_file: file_names, non_constant_identifier_names, camel_case_types, prefer_interpolation_to_compose_strings, avoid_print, unrelated_type_equality_checks
 
 import 'package:app_pilates/Controle/AlunosController.dart';
 
@@ -25,11 +25,12 @@ class Horario {
     required this.IdAlunos,
   });
 
-  String ObterPessoas() {
-    List<String> nomesList =
-        IdAlunos.map((id) => AlunosController().ObterAlunoPorId(id).GetNome())
-            .toList();
-
+  Future<String> ObterPessoas() async {
+    List<Future<String>> nomeFutures = IdAlunos.map((id) async {
+      Aluno aluno = await AlunosController().obterAlunoPorId(id);
+      return aluno.GetNome();
+    }).toList();
+    List<String> nomesList = await Future.wait(nomeFutures);
     String nomes = nomesList.join(" | ");
 
     return nomes;
@@ -60,7 +61,7 @@ class FormatoDeData {
 
 class Hora {
   String Horario;
-  String DiaSemana;
+  int DiaSemana;
   bool Presenca;
 
   Hora({
@@ -68,6 +69,13 @@ class Hora {
     required this.DiaSemana,
     required this.Presenca,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'horario': Horario,
+      'dia_semana_id': DiaSemana,
+    };
+  }
 }
 
 class Aluno {
@@ -158,6 +166,29 @@ class Aluno {
     } catch (e) {
       return false;
     }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nome': Nome,
+      'anotacoes': Anotacoes,
+      'ultimo_pagamento': UltimoPagamento?.toIso8601String(),
+      'parcelado': Parcelado == true ? 1 : 0,
+      'modelo_negocios': ModeloNegocios,
+    };
+  }
+
+  // Criar um objeto Aluno a partir de um mapa (para leitura do banco de dados)
+  factory Aluno.fromMap(Map<String, dynamic> map) {
+    return Aluno(
+      Id: map['id'],
+      Nome: map['nome'],
+      Anotacoes: map['anotacoes'],
+      UltimoPagamento: DateTime.parse(map['ultimo_pagamento']),
+      Parcelado: map['parcelado'] == 1,
+      ModeloNegocios: map['modelo_negocios'],
+      // PresencaSemana pode ser populada separadamente, se necessário
+    );
   }
 }
 

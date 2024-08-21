@@ -1,4 +1,5 @@
 // ignore_for_file: file_names, non_constant_identifier_names, use_function_type_syntax_for_parameters, avoid_function_literals_in_foreach_calls, avoid_print, unused_local_variable
+/*
 import 'dart:math';
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Controller.dart';
@@ -57,7 +58,7 @@ List<String> Sobrenomes = [
   'Gomes'
 ];
 
-gerarDadosTeste() {
+gerarDadosTeste() async {
   int NumeroDeAlunos = 3;
   Random random = Random();
 
@@ -65,8 +66,8 @@ gerarDadosTeste() {
     String NomeAluno =
         '${Nomes[random.nextInt(Nomes.length)]} ${Sobrenomes[random.nextInt(Sobrenomes.length)]}';
 
-    Aluno NovoAluno =
-        AlunosController().AdicionarAluno(Aluno(Id: -1, Nome: NomeAluno));
+    Aluno NovoAluno = AlunosController()
+        .AdicionarAluno(Aluno(Id: -1, Nome: NomeAluno), false);
 
     String DiaDaSemanaRandom;
     List<Hora> HorariosSelecionados = [];
@@ -91,7 +92,7 @@ gerarDadosTeste() {
         );
 
         Controller()
-            .Obter_Dia_porString(DiaDaSemanaRandom)
+            .obterDiaPorString(DiaDaSemanaRandom)
             .Horarios
             .firstWhere((e) => e.Hora == Escolha.Hora)
             .AdicionarPessoa(NovoAluno.Id);
@@ -107,3 +108,4 @@ gerarDadosTeste() {
     }
   }
 }
+*/

@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_const_literals_to_create_immutables, prefer_const_constructors, file_names
 
+import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:flutter/material.dart';
@@ -27,16 +28,18 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
+
     return GlassContainer(
-        Cor: const Color.fromRGBO(255, 255, 255, 1),
-        Width: WindowWidth > 601
-            ? (WindowWidth * .2) >= 200
-                ? (WindowWidth * .8) - 30
-                : (WindowWidth - 230)
-            : WindowWidth - 20,
-        Padding: EdgeInsets.all(10),
-        Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
-        Child: Column(children: [
+      Cor: const Color.fromRGBO(255, 255, 255, 1),
+      Width: WindowWidth > 601
+          ? (WindowWidth * .2) >= 200
+              ? (WindowWidth * .8) - 30
+              : (WindowWidth - 230)
+          : WindowWidth - 20,
+      Padding: EdgeInsets.all(10),
+      Height: WindowHeight - (WindowWidth > 601 ? 0 : 75),
+      Child: Column(
+        children: [
           Center(
             child: Text(
               "FALTAS",
@@ -44,19 +47,35 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
             ),
           ),
           Expanded(
-              child: GridView(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: AjustarQuantidades(WindowWidth),
-                mainAxisExtent: 40),
-            children: AlunosController()
-                .ObterFaltas()
-                .map((e) => Text(
-                      '${e.Nome}: [ ${AlunosController().DominutivoDiaSemanaByFaltas(e)} ]'
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: AlunosController().obterFaltas(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CarregandoDataBar();
+              } else if (snapshot.hasError) {
+                return Center(child: Text("Erro ao carregar dados"));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(child: Text("Nenhum aluno com falta"));
+              } else {
+                List<Map<String, dynamic>> faltas = snapshot.data!;
+                return GridView(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: AjustarQuantidades(WindowWidth),
+                    mainAxisExtent: 40,
+                  ),
+                  children: faltas.map((falta) {
+                    return Text(
+                      '${falta['nome']}: [ ${falta['dia']} - ${falta['horario']} ]'
                           .toUpperCase(),
                       style: TextStyle(color: Colors.white, fontSize: 12),
-                    ))
-                .toList(),
-          ))
-        ]));
+                    );
+                  }).toList(),
+                );
+              }
+            },
+          )),
+        ],
+      ),
+    );
   }
 }

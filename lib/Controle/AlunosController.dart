@@ -1,91 +1,316 @@
-// ignore_for_file: file_names, non_constant_identifier_names, avoid_print, prefer_const_constructors, unnecessary_null_comparison
+// ignore_for_file: file_names, depend_on_referenced_packages, non_constant_identifier_names, collection_methods_unrelated_type
 
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
-
-Map<String, String> Tranfomacao = {
-  "SEGUNDA-FEIRA": "SEG",
-  "TERÇA-FEIRA": "TER",
-  "QUARTA-FEIRA": "QUA",
-  "QUINTA-FEIRA": "QUI",
-  "SEXTA-FEIRA": "SEX",
-  "SABADO-FEIRA": "SAB",
-  "DOMINGO-FEIRA": "DOM",
-};
-final List<Aluno> ListaAlunos = [];
-Aluno VisualizadorDeErro = Aluno(Id: -1, Nome: "-- ==ERRO AQUI ==--");
+import 'package:app_pilates/Controle/DataBase.dart';
+import 'package:flutter/foundation.dart';
+import 'package:sqflite/sqflite.dart';
 
 class AlunosController {
-  // SETTERS
-  Aluno AdicionarAluno(Aluno NovoValor) {
-    if (NovoValor.Id <= 0) {
-      NovoValor.Id = ListaAlunos.length + 1;
-    }
-    ListaAlunos.add(NovoValor);
-    return NovoValor;
-  }
+  final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  // GETTERS
-  List<Aluno> ObterAlunos() {
-    return ListaAlunos;
-  }
-
-  Aluno ObterAlunoPorId(int Id) {
+  // Adicionar um novo aluno
+  Future<Aluno> adicionarAluno(Aluno novoAluno) async {
+    debugPrint("adicionarAluno");
     try {
-      return ListaAlunos.firstWhere((element) => element.Id == Id);
-    } catch (e) {
-      return VisualizadorDeErro;
-    }
-  }
+      final db = await _dbHelper.database;
 
-  List<Aluno> ObterFaltas() {
-    List<Aluno> alunosComFaltas = [];
+      // 1. Adicionar o aluno
+      novoAluno.Id = await db.insert(
+        'aluno',
+        novoAluno.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      debugPrint("Aluno adicionado");
 
-    for (var aluno in ListaAlunos) {
-      bool temFalta = aluno.PresencaSemana!.any((hora) => !hora.Presenca);
-      if (temFalta) {
-        alunosComFaltas.add(aluno);
+      if (novoAluno.PresencaSemana != null) {
+        for (var hora in novoAluno.PresencaSemana!) {
+          var result = await db.query(
+            'hora',
+            where: 'horario = ? AND dia_semana_id = ?',
+            whereArgs: [hora.Horario, hora.DiaSemana],
+          );
+
+          int horarioId;
+
+          if (result.isEmpty) {
+            debugPrint("Não existia ...");
+            // Adicionar o horário se não existir
+            horarioId = await db.insert(
+              'hora',
+              hora.toMap(),
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          } else {
+            horarioId = result.first['id'] as int;
+          }
+          await db.insert(
+            'presenca',
+            {
+              'aluno_id': novoAluno.Id,
+              'hora_id': horarioId,
+              'dia_id': hora.DiaSemana,
+              'presenca': 0,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
       }
+      var TodasPresenca = await db.query('presenca');
+      debugPrint('$TodasPresenca');
+    } catch (e) {
+      debugPrint('Erro ao adicionar aluno: $e');
     }
-
-    return alunosComFaltas;
+    return novoAluno;
   }
 
-  String DominutivoDiaSemanaByFaltas(Aluno ObterSilgas) {
+  // Atualiza os dados do aluno no DB
+  Future<void> atualizaAluno(Aluno alunoAtualizado) async {
+    final db = await _dbHelper.database;
+
+    try {
+      await db.update(
+        'aluno',
+        alunoAtualizado.toMap(),
+        where: 'id = ?',
+        whereArgs: [alunoAtualizado.Id],
+      );
+
+      await db.delete(
+        'presenca',
+        where: 'aluno_id = ?',
+        whereArgs: [alunoAtualizado.Id],
+      );
+
+      for (var hora in alunoAtualizado.PresencaSemana!) {
+        final horaId = await db.insert('hora', {
+          'horario': hora.Horario,
+          'dia_semana_id': hora.DiaSemana,
+        });
+
+        await db.insert('presenca', {
+          'aluno_id': alunoAtualizado.Id,
+          'hora_id': horaId,
+        });
+      }
+    } catch (e) {
+      debugPrint("Erro ao atualizar aluno: $e");
+    }
+  }
+
+  // Obter todos os alunos
+  Future<List<Aluno>> obterAlunos() async {
+    debugPrint("obterAlunos");
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query('aluno');
+
+    return List.generate(maps.length, (i) {
+      return Aluno.fromMap(maps[i]);
+    });
+  }
+
+  // Obter aluno por ID
+  Future<Aluno> obterAlunoPorId(int id) async {
+    try {
+      final db = await _dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'aluno',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        return Aluno.fromMap(maps.first);
+      } else {
+        return Aluno(Id: -1, Nome: "-- ==ERRO AQUI ==--"); // Aluno de erro
+      }
+    } catch (e) {
+      return Aluno(Id: -1, Nome: "-- ==ERRO AQUI ==--");
+    }
+  }
+
+  // Obter faltas
+  Future<List<Map<String, dynamic>>> obterFaltas() async {
+    debugPrint("obterFaltas");
+    try {
+      final db = await _dbHelper.database;
+
+      // Consulta para obter as faltas dos alunos
+      final result = await db.rawQuery('''
+      SELECT aluno.nome, hora.horario, dia_semana.nome AS dia
+      FROM presenca
+      INNER JOIN aluno ON presenca.aluno_id = aluno.id
+      INNER JOIN hora ON presenca.hora_id = hora.id
+      INNER JOIN dia_semana ON presenca.dia_id = dia_semana.id
+      WHERE presenca.presenca = 0; -- Considerando 0 como ausência
+    ''');
+      debugPrint('$result');
+
+      return result;
+    } catch (e) {
+      debugPrint("Erro ao obterFaltas: $e");
+      return [];
+    }
+  }
+
+  // Remover um aluno
+  Future<void> removerAluno(Aluno aluno) async {
+    debugPrint("removerAluno");
+    final db = await _dbHelper.database;
+
+    // Remover aluno dos horários
+    await Controller().removerDosHorarios(aluno);
+
+    // Remover aluno
+    await db.delete(
+      'aluno',
+      where: 'id = ?',
+      whereArgs: [aluno.Id],
+    );
+  }
+
+  // Obter mensalidades
+  Future<List<Aluno>> obterMensalidades(String filtro) async {
+    debugPrint("obterMensalidades");
+    final alunos = await obterAlunos();
+    DateTime agora = DateTime.now();
+    return alunos.where((Aluno a) {
+      int diferencia = -agora.difference(a.GetUltimoPagamento()).inDays;
+
+      if (filtro == "VENCIDAS") {
+        return diferencia < 0;
+      } else if (filtro == "ATÉ 4 DIAS") {
+        return diferencia > 0 && diferencia <= 4;
+      } else if (filtro == "1 SEMANA") {
+        return diferencia > 4 && diferencia <= 7;
+      }
+      return true;
+    }).toList();
+  }
+
+  String DominutivoDiaSemanaByFaltas(Aluno aluno) {
+    debugPrint("DominutivoDiaSemanaByFaltas");
     List<String> siglas = [];
 
-    for (var Presenca in ObterSilgas.PresencaSemana!) {
-      if (!Presenca.Presenca) {
-        siglas.add(Tranfomacao[Presenca.DiaSemana]!);
+    if (aluno.PresencaSemana != null) {
+      for (var presenca in aluno.PresencaSemana!) {
+        if (!presenca.Presenca) {
+          siglas.add(Tranfomacao[presenca.DiaSemana]!);
+        }
       }
     }
 
     return siglas.join(' | ');
   }
 
-  void RemoverAluno(Aluno Data) {
-    Controller().RemoverDosHorarios(Data);
-    ListaAlunos.removeWhere((element) => element.Id == Data.Id);
-  }
+  void DefinirPresencaAluno(int idAluno, String dia, int idHora) async {
+    try {
+      if (idAluno == -1) throw ("idAluno esta negativo");
+      if (idHora == -1) throw ("idHora esta negativo");
+      // 1. Obter o ID do dia a partir do nome do dia
+      int idDia = await Controller().obterIdDiaPorString(dia);
 
-  // CONTROLE PAGAMENTO e REMARCAÇÃO
-  List<Aluno> ObterMensalidades(String Filtro) {
-    DateTime agora = DateTime.now();
-    return ListaAlunos.where((Aluno A) {
-      int Diference = -agora.difference(A.GetUltimoPagamento()).inDays;
+      // 2. Verificar a presença atual do aluno para o dia e horário especificados
+      final db = await _dbHelper.database;
+      final presencaResult = await db.query(
+        'presenca',
+        where: 'aluno_id = ? AND hora_id = ? AND dia_id = ?',
+        whereArgs: [idAluno, idHora, idDia],
+      );
 
-      if (Filtro == "VENCIDAS") {
-        return Diference < 0;
-      } else if (Filtro == "ATÉ 4 DIAS") {
-        return Diference > 0 && Diference <= 4;
-      } else if (Filtro == "1 SEMANA") {
-        return Diference > 4 && Diference <= 7;
+      bool novaPresenca;
+
+      if (presencaResult.isEmpty) {
+        await db.insert(
+          'presenca',
+          {
+            'aluno_id': idAluno,
+            'hora_id': idHora,
+            'presenca': 1,
+            'dia_id': idDia
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      } else {
+        // Se houver registro, alternar o valor de presença
+        int presencaAtual = presencaResult.first['presenca'] as int;
+        novaPresenca = presencaAtual == 0; // Alterna entre true (1) e false (0)
+
+        await db.update(
+          'presenca',
+          {'presenca': novaPresenca ? 1 : 0},
+          where: 'aluno_id = ? AND hora_id = ? AND dia_id = ?',
+          whereArgs: [idAluno, idHora, idDia],
+        );
       }
-      return true;
-    }).toList();
+
+      debugPrint(
+          'Presença atualizada para o aluno $idAluno no dia $dia e hora $idHora.');
+    } catch (e) {
+      debugPrint("Erro ao definir a presença do aluno: $e");
+    }
   }
 
-  // DB FUNCTIONS
-  SalvarData() {}
-  TransformarData() {}
+  Future<bool> ObterPresencaAluno(
+      int idAluno, String HoraSelec, String diaSemanaSelecionado) async {
+    try {
+      final db = await _dbHelper.database;
+      int idHora = await Controller().obterIdHoraPorString(HoraSelec);
+      int idDia = await Controller().obterIdDiaPorString(diaSemanaSelecionado);
+
+      final result = await db.query(
+        'presenca',
+        where: 'aluno_id = ? AND hora_id = ? AND dia_id = ?',
+        whereArgs: [idAluno, idHora, idDia],
+      );
+
+      if (result.isEmpty) {
+        return false; // Presença não definida, assume-se ausência
+      }
+
+      return result.first['presenca'] == 1;
+    } catch (e) {
+      debugPrint("Erro ao obter a presença: $e");
+      return false; // Em caso de erro, assume-se ausência
+    }
+  }
+
+  Future<List<Hora>> ObterHorariosAluno(int alunoId) async {
+    try {
+      final db = await _dbHelper.database;
+
+      // Primeiro, obtenha todos os registros de presença do aluno
+      final presencas = await db.query(
+        'presenca',
+        where: 'aluno_id = ?',
+        whereArgs: [alunoId],
+      );
+
+      // Extraia os IDs dos horários das presenças
+      final horarioIds =
+          presencas.map((presenca) => presenca['hora_id'] as int).toSet();
+
+      // Obtenha os detalhes dos horários usando os IDs
+      final horarios = await Future.wait(horarioIds.map((id) async {
+        final horarioList = await db.query(
+          'hora',
+          where: 'id = ?',
+          whereArgs: [id],
+        );
+
+        return horarioList.isNotEmpty
+            ? Hora(
+                Horario: '${horarioList.first['horario']}',
+                DiaSemana: int.parse('${horarioList.first['dia_semana_id']}'),
+                Presenca: horarioList.first['presenca'] == 1,
+              )
+            : null;
+      }));
+
+      // Filtre nulos e retorne a lista de horários
+      return horarios.whereType<Hora>().toList();
+    } catch (e) {
+      debugPrint("Erro ao obter horários do aluno: $e");
+      return [];
+    }
+  }
 }

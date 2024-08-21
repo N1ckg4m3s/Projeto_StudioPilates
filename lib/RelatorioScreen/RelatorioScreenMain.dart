@@ -19,6 +19,12 @@ bool DroweAberto = false;
 
 class RelatorioScreenState extends State<RelatorioScreen> {
   @override
+  void initState() {
+    super.initState();
+    DroweAberto = false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
 

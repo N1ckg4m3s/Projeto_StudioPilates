@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, avoid_print, constant_identifier_names, unnecessary_brace_in_string_interps, prefer_function_declarations_over_variables, unused_local_variable, curly_braces_in_flow_control_structures, dead_code
 
+import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Controller.dart';
 
@@ -23,7 +24,9 @@ class HorarioScreen extends StatefulWidget {
 }
 
 String DiaSemanaSelecionado = "SEGUNDA-FEIRA";
-String TopicoSelecionado = "06:00";
+final ValueNotifier<String> topicoSelecionadoNotifier =
+    ValueNotifier("SEGUNDA-FEIRA");
+final ValueNotifier<bool> droweAbertoNotifier = ValueNotifier(false);
 DiaSemana? Dia;
 bool DroweAberto = false;
 
@@ -31,26 +34,31 @@ class StateHorarioScreen extends State<HorarioScreen> {
   @override
   void initState() {
     super.initState();
-    // Inicialização padrão
-    Dia = Controller().Obter_Dia_porString('SEGUNDA-FEIRA');
-    TopicoSelecionado = "07:00";
+    CarregarDadosIniciais() async {
+      Dia = await Controller().obterDiaPorString('SEGUNDA-FEIRA');
+      topicoSelecionadoNotifier.value = "07:00";
+    }
+
+    CarregarDadosIniciais();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    CarregarDados() async {
+      final arguments = ModalRoute.of(context)?.settings.arguments;
 
-    // Tentando obter os argumentos da navegação
-    final arguments = ModalRoute.of(context)?.settings.arguments;
-
-    if (arguments is DataEnvio_Week_Horario) {
-      DiaSemanaSelecionado = arguments.DiaDaSemana;
-      Dia = Controller().Obter_Dia_porString(arguments.DiaDaSemana);
-      TopicoSelecionado = arguments.HorarioSelecionado;
-    } else {
-      Dia = Controller().Obter_Dia_porString('SEGUNDA-FEIRA');
-      TopicoSelecionado = Dia!.Horarios.first.Hora;
+      if (arguments is DataEnvio_Week_Horario) {
+        DiaSemanaSelecionado = arguments.DiaDaSemana;
+        Dia = await Controller().obterDiaPorString(arguments.DiaDaSemana);
+        topicoSelecionadoNotifier.value = arguments.HorarioSelecionado;
+      } else {
+        Dia = await Controller().obterDiaPorString('SEGUNDA-FEIRA');
+        topicoSelecionadoNotifier.value = Dia!.Horarios.first.Hora;
+      }
     }
+
+    CarregarDados();
   }
 
   @override
@@ -77,49 +85,68 @@ class StateHorarioScreen extends State<HorarioScreen> {
                               MaterialStateProperty.all(Colors.transparent),
                         ),
                         onPressed: () => {
-                              setState(() {
-                                DroweAberto = !DroweAberto;
-                              })
+                              droweAbertoNotifier.value =
+                                  !droweAbertoNotifier.value,
                             },
                         icon: Icon(Icons.menu))),
                 Stack(
                   children: [
-                    ConteudoTela(
-                        WindowWidth, WindowHeight - 75, setState, true),
-                    if (DroweAberto)
-                      Container(
-                        width: WindowWidth,
-                        height: WindowHeight - 55,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            Colors.black,
-                            Colors.black.withOpacity(.8),
-                            Colors.transparent,
-                          ], stops: [
-                            0,
-                            .7,
-                            .8
-                          ]),
-                        ),
-                        child: Row(
-                          children: [
-                            NavBar(WindowWidth, WindowHeight, setState,
-                                EnviarParaInicio),
-                            TextButton(
-                                style: ButtonStyle(
-                                  overlayColor: MaterialStatePropertyAll(
-                                      Colors.transparent),
-                                ),
-                                onPressed: () => setState(() {
-                                      DroweAberto = false;
-                                    }),
-                                child: SizedBox(
-                                  width: WindowWidth - 240,
-                                  height: WindowHeight - 55,
-                                ))
-                          ],
-                        ),
-                      )
+                    ValueListenableBuilder<String>(
+                      valueListenable: topicoSelecionadoNotifier,
+                      builder: (context, topicoSelecionado, child) {
+                        return ConteudoTela(
+                            WindowWidth,
+                            WindowHeight - 75,
+                            setState,
+                            true,
+                            topicoSelecionado,
+                            Dia,
+                            DiaSemanaSelecionado);
+                      },
+                    ),
+                    ValueListenableBuilder<bool>(
+                        valueListenable: droweAbertoNotifier,
+                        builder: (context, DroweAbertoNot, child) {
+                          if (DroweAbertoNot) {
+                            return Container(
+                              width: WindowWidth,
+                              height: WindowHeight - 55,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: [
+                                  Colors.black,
+                                  Colors.black.withOpacity(.8),
+                                  Colors.transparent,
+                                ], stops: [
+                                  0,
+                                  .7,
+                                  .8
+                                ]),
+                              ),
+                              child: Row(
+                                children: [
+                                  NavBar(WindowWidth, WindowHeight,
+                                      (newTopico) {
+                                    topicoSelecionadoNotifier.value = newTopico;
+                                    droweAbertoNotifier.value = false;
+                                  }, setState, EnviarParaInicio,
+                                      topicoSelecionadoNotifier.value),
+                                  TextButton(
+                                      style: ButtonStyle(
+                                        overlayColor: MaterialStatePropertyAll(
+                                            Colors.transparent),
+                                      ),
+                                      onPressed: () =>
+                                          droweAbertoNotifier.value = false,
+                                      child: SizedBox(
+                                        width: WindowWidth - 240,
+                                        height: WindowHeight - 55,
+                                      ))
+                                ],
+                              ),
+                            );
+                          }
+                          return SizedBox.shrink();
+                        }),
                   ],
                 )
               ],
@@ -127,8 +154,17 @@ class StateHorarioScreen extends State<HorarioScreen> {
           else
             return Row(
               children: [
-                NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio),
-                ConteudoTela(WindowWidth, WindowHeight, setState, false)
+                NavBar(WindowWidth, WindowHeight, (newTopico) {
+                  topicoSelecionadoNotifier.value = newTopico;
+                  droweAbertoNotifier.value = false;
+                }, setState, EnviarParaInicio, topicoSelecionadoNotifier.value),
+                ValueListenableBuilder<String>(
+                  valueListenable: topicoSelecionadoNotifier,
+                  builder: (context, topicoSelecionado, child) {
+                    return ConteudoTela(WindowWidth, WindowHeight, setState,
+                        true, topicoSelecionado, Dia, DiaSemanaSelecionado);
+                  },
+                ),
               ],
             );
         },
@@ -137,7 +173,8 @@ class StateHorarioScreen extends State<HorarioScreen> {
   }
 }
 
-Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
+Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
+    EnviarParaInicio, TopicoSelecionado) {
   return GlassContainer(
     Cor: Color.fromRGBO(255, 255, 255, 1),
     Width: (WindowWidth * .2),
@@ -150,36 +187,42 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
             padding: EdgeInsets.only(right: 10),
             children: Dia!.Horarios.map(
               (e) {
-                return TextButton(
-                  onPressed: () => {
-                    setState(
-                      () {
-                        TopicoSelecionado = e.Hora;
+                return ValueListenableBuilder<String>(
+                  valueListenable: topicoSelecionadoNotifier,
+                  builder: (context, topicoSelecionado, child) {
+                    return TextButton(
+                      onPressed: () => {
+                        setState(
+                          () {
+                            SelecionarTopico(e.Hora);
+                          },
+                        )
                       },
-                    )
-                  },
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                  ),
-                  child: GlassContainer(
-                    Cor: (TopicoSelecionado != (e.Hora)
-                        ? Color.fromRGBO(255, 255, 255, 1)
-                        : Color.fromRGBO(173, 99, 173, 1)),
-                    Width: 0,
-                    Rotate: 7,
-                    MinWidth: 0,
-                    Height: 35,
-                    Child: Center(
-                      child: Text(
-                        e.Hora,
-                        style: TextStyle(
-                          color: (TopicoSelecionado != (e.Hora)
-                              ? Color.fromRGBO(255, 255, 255, 1)
-                              : Color.fromRGBO(173, 99, 173, 1)),
+                      style: ButtonStyle(
+                        overlayColor:
+                            MaterialStateProperty.all(Colors.transparent),
+                      ),
+                      child: GlassContainer(
+                        Cor: (TopicoSelecionado != (e.Hora)
+                            ? Color.fromRGBO(255, 255, 255, 1)
+                            : Color.fromRGBO(173, 99, 173, 1)),
+                        Width: 0,
+                        Rotate: 7,
+                        MinWidth: 0,
+                        Height: 35,
+                        Child: Center(
+                          child: Text(
+                            e.Hora,
+                            style: TextStyle(
+                              color: (TopicoSelecionado != (e.Hora)
+                                  ? Color.fromRGBO(255, 255, 255, 1)
+                                  : Color.fromRGBO(173, 99, 173, 1)),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 );
               },
             ).toList(),
@@ -209,7 +252,15 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
   );
 }
 
-Widget ConteudoTela(WindowWidth, WindowHeight, setState, bool Tamanho) {
+Widget ConteudoTela(
+  double WindowWidth,
+  double WindowHeight,
+  void Function(void Function()) setState,
+  bool Tamanho,
+  String TopicoSelecionado,
+  DiaSemana? Dia,
+  String DiaSemanaSelecionado,
+) {
   return GlassContainer(
     Cor: Color.fromRGBO(255, 255, 255, 1),
     Width: Tamanho
@@ -227,50 +278,92 @@ Widget ConteudoTela(WindowWidth, WindowHeight, setState, bool Tamanho) {
         ),
         Expanded(
           child: ListView(
-            children: Dia!.Horarios
-                .firstWhere((element) => element.Hora == TopicoSelecionado)
-                .IdAlunos
-                .map(
-              (e) {
-                return TextButton(
-                  onPressed: () => {
-                    setState(() {
-                      AlunosController()
-                          .ObterAlunoPorId(e)
-                          .SetPresenca(TopicoSelecionado, DiaSemanaSelecionado);
-                    })
-                  },
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                  ),
-                  child: GlassContainer(
-                    Cor: AlunosController().ObterAlunoPorId(e).GetPresenca(
-                            TopicoSelecionado, DiaSemanaSelecionado) // PRESENÇA
-                        ? Color.fromRGBO(12, 255, 32, 1)
-                        : Color.fromRGBO(255, 255, 255, 1),
-                    Rotate: 20,
-                    Width: 0,
-                    Height: 55,
-                    Child: Center(
-                      child: Text(
-                        AlunosController().ObterAlunoPorId(e).GetNome(),
-                        style: TextStyle(
-                          color: AlunosController()
-                                  .ObterAlunoPorId(e)
-                                  .GetPresenca(
-                                      TopicoSelecionado, DiaSemanaSelecionado)
-                              ? Color.fromRGBO(12, 255, 32, 1)
-                              : Color.fromRGBO(255, 255, 255, 1),
-                          fontSize: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ).toList(),
+            children: Dia?.Horarios.isEmpty ?? true
+                ? [Text("")]
+                : Dia!.Horarios
+                    .firstWhere((element) => element.Hora == TopicoSelecionado)
+                    .IdAlunos
+                    .map(
+                    (IdAluno) {
+                      return FutureBuilder<Aluno>(
+                        future: AlunosController().obterAlunoPorId(IdAluno),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CarregandoDataBar();
+                          } else if (snapshot.hasError) {
+                            return Text("ERROR");
+                          } else if (!snapshot.hasData) {
+                            return Text("No data");
+                          }
+                          final aluno = snapshot.data!;
+
+                          return FutureBuilder<bool>(
+                            future: AlunosController().ObterPresencaAluno(
+                                IdAluno,
+                                TopicoSelecionado,
+                                DiaSemanaSelecionado),
+                            builder: (context, presencaSnapshot) {
+                              if (presencaSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CarregandoDataBar();
+                              } else if (presencaSnapshot.hasError) {
+                                return Text("ERROR");
+                              } else if (!presencaSnapshot.hasData) {
+                                return Text("No data");
+                              }
+
+                              bool presenca = presencaSnapshot.data!;
+
+                              return TextButton(
+                                onPressed: () async {
+                                  try {
+                                    int idDaHora = await Controller()
+                                        .obterIdHoraPorString(
+                                            TopicoSelecionado);
+
+                                    AlunosController().DefinirPresencaAluno(
+                                        aluno.Id, Dia.Nome, idDaHora);
+
+                                    // Atualiza a UI
+                                    setState(() {});
+                                  } catch (e) {
+                                    debugPrint(
+                                        "Erro ao definir a presença do aluno: $e");
+                                  }
+                                },
+                                style: ButtonStyle(
+                                  overlayColor: MaterialStateProperty.all(
+                                      Colors.transparent),
+                                ),
+                                child: GlassContainer(
+                                  Cor: presenca
+                                      ? Color.fromRGBO(12, 255, 32, 1)
+                                      : Color.fromRGBO(255, 255, 255, 1),
+                                  Rotate: 20,
+                                  Width: 0,
+                                  Height: 55,
+                                  Child: Center(
+                                    child: Text(
+                                      aluno.Nome,
+                                      style: TextStyle(
+                                        color: presenca
+                                            ? Color.fromRGBO(12, 255, 32, 1)
+                                            : Color.fromRGBO(255, 255, 255, 1),
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ).toList(),
           ),
-        )
+        ),
       ],
     ),
   );

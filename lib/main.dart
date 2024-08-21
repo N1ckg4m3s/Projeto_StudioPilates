@@ -6,7 +6,6 @@ import 'package:app_pilates/HorarioScreen.dart';
 import 'package:app_pilates/RelatorioScreen/RelatorioScreenMain.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/WeekScreen.dart';
-import 'Controle/GerarDataTeste.dart';
 
 void main() => runApp(const MyApp());
 
@@ -14,9 +13,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.width);
     IniciarPrograma();
-    gerarDadosTeste();
+
     return MaterialApp(
       initialRoute: "/WeekScreen",
       routes: {

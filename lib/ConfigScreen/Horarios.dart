@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors, non_constant_identifier_names, unused_import, unused_element, unused_local_variable, prefer_const_literals_to_create_immutables, avoid_print, prefer_typing_uninitialized_variables, must_be_immutable, no_logic_in_create_state
 
+import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
@@ -12,6 +13,46 @@ class HorarioScreen extends StatefulWidget {
 }
 
 class HorarioScreenState extends State<HorarioScreen> {
+  List<int> _horasTrabalhadas = [];
+  int _limiteAulasPorHorario = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadConfiguracoes();
+  }
+
+  Future<void> _loadConfiguracoes() async {
+    try {
+      Configuracoes configs = await Controller().obterConfiguracoes();
+      setState(() {
+        _horasTrabalhadas = configs.HorasTrabalhadas;
+        _limiteAulasPorHorario = configs.LimiteAulasPorHorario;
+        // _isLoading = false;
+      });
+    } catch (e) {
+      // Gerenciar erro, se necessário
+      print('Erro ao carregar configurações: $e');
+    }
+  }
+
+  Future<void> _updateHorasTrabalhadas(int index) async {
+    setState(() {
+      if (_horasTrabalhadas.contains(index)) {
+        _horasTrabalhadas.remove(index);
+      } else {
+        _horasTrabalhadas.add(index);
+      }
+    });
+
+    // Atualizar as configurações
+    Configuracoes updatedConfigs = Configuracoes(
+        HorasTrabalhadas: _horasTrabalhadas,
+        LimiteAulasPorHorario: _limiteAulasPorHorario,
+        DiaDeHoje: DateTime.now());
+    await Controller().definirConfiguracoes(updatedConfigs);
+  }
+
   @override
   Widget build(BuildContext context) {
     EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
@@ -26,6 +67,7 @@ class HorarioScreenState extends State<HorarioScreen> {
             : WindowWidth > 600
                 ? 5
                 : 4; //
+    double TamanhoTexto = WindowWidth > 400 ? 25 : 20;
 
     return GlassContainer(
       Cor: Color.fromRGBO(255, 255, 255, 1),
@@ -40,7 +82,7 @@ class HorarioScreenState extends State<HorarioScreen> {
           Center(
             child: Text(
               "HORARIOS FUNCIONAMENTO",
-              style: TextStyle(color: Colors.white, fontSize: 25),
+              style: TextStyle(color: Colors.white, fontSize: TamanhoTexto),
             ),
           ),
           Expanded(
@@ -50,26 +92,8 @@ class HorarioScreenState extends State<HorarioScreen> {
               children: List.generate(
                   17,
                   (index) => TextButton(
-                        onPressed: () => {
-                          setState(() {
-                            if (Controller()
-                                .ObterConfiguracoes()
-                                .HorasTrabalhadas
-                                .contains(index + 6)) {
-                              Controller()
-                                  .ObterConfiguracoes()
-                                  .HorasTrabalhadas
-                                  .removeAt(Controller()
-                                      .ObterConfiguracoes()
-                                      .HorasTrabalhadas
-                                      .indexOf(index + 6));
-                            } else {
-                              Controller()
-                                  .ObterConfiguracoes()
-                                  .HorasTrabalhadas
-                                  .add(index + 6);
-                            }
-                          })
+                        onPressed: () async {
+                          await _updateHorasTrabalhadas(index + 6);
                         },
                         style: ButtonStyle(
                           overlayColor:
@@ -78,29 +102,18 @@ class HorarioScreenState extends State<HorarioScreen> {
                         child: GlassContainer(
                           Width: 0,
                           Height: 0,
-                          Cor: !Controller()
-                                  .ObterConfiguracoes()
-                                  .HorasTrabalhadas
-                                  .contains(index + 6)
+                          Cor: !_horasTrabalhadas.contains(index + 6)
                               ? Color.fromRGBO(255, 255, 255, 1)
                               : Color.fromRGBO(173, 99, 173, 1),
-                          Rotate: !Controller()
-                                  .ObterConfiguracoes()
-                                  .HorasTrabalhadas
-                                  .contains(index)
-                              ? 50
-                              : 20,
+                          Rotate: !_horasTrabalhadas.contains(index) ? 50 : 20,
                           Child: Center(
                             child: Text(
                               '${(index + 6) <= 9 ? '0${index + 6}' : (index + 6)}:00',
                               style: TextStyle(
-                                  color: !Controller()
-                                          .ObterConfiguracoes()
-                                          .HorasTrabalhadas
-                                          .contains(index + 6)
+                                  color: !_horasTrabalhadas.contains(index + 6)
                                       ? Color.fromRGBO(255, 255, 255, 1)
                                       : Color.fromRGBO(173, 99, 173, 1),
-                                  fontSize: 25),
+                                  fontSize: TamanhoTexto),
                             ),
                           ),
                         ),

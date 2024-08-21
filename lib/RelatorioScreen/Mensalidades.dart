@@ -1,7 +1,9 @@
 // ignore_for_file: non_constant_identifier_names, unused_element, prefer_const_literals_to_create_immutables, prefer_const_constructors, file_names
 
+import 'package:app_pilates/Componentes/CaregandoData.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 import 'package:app_pilates/Controle/AlunosController.dart';
+import 'package:app_pilates/Controle/Classes.dart';
 import 'package:flutter/material.dart';
 
 class MensalidadesScreen extends StatefulWidget {
@@ -88,46 +90,67 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                     )).toList()),
           ),
           Expanded(
-              child: GridView(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: AjustarQuantidades(WindowWidth),
-                mainAxisExtent: 40),
-            children:
-                AlunosController().ObterMensalidades(FiltroAtual).map((aluno) {
-              Color corTexto;
-              String texto;
-              int diasDiferenca =
-                  -DateTime.now().difference(aluno.GetUltimoPagamento()).inDays;
-              if (aluno.UltimoPagamento == null) {
-                diasDiferenca = -1;
-              }
-              Transformar(DateTime data) {
-                return '${data.day}/${data.month}/${data.year}';
-              }
+            child: FutureBuilder<List<Aluno>>(
+              future: AlunosController().obterMensalidades(FiltroAtual),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CarregandoDataBar(); // ou qualquer widget de carregamento
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Erro ao carregar dados"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text("Nenhum aluno encontrado"));
+                }
 
-              texto =
-                  '${aluno.Nome}: ${Transformar(aluno.GetUltimoPagamento())}';
+                // Agora temos os dados
+                List<Aluno> alunos = snapshot.data!;
 
-              if (diasDiferenca == 0) {
-                texto = '${aluno.Nome}: Hoje';
-                corTexto = Colors.red;
-              } else if (diasDiferenca <= 0) {
-                texto = '${aluno.Nome}: há ${diasDiferenca.abs()} dias';
-                corTexto = Colors.red;
-              } else if (diasDiferenca <= 4) {
-                corTexto = Colors.orange;
-                texto = '${aluno.Nome}: em ${diasDiferenca.abs()} dias';
-              } else {
-                corTexto = Colors.white;
-                texto = '${aluno.Nome}: Daqui ${diasDiferenca.abs()} dias';
-              }
+                return GridView(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: AjustarQuantidades(WindowWidth),
+                    mainAxisExtent: 40,
+                  ),
+                  children: alunos.map((aluno) {
+                    Color corTexto;
+                    String texto;
+                    int diasDiferenca = -DateTime.now()
+                        .difference(aluno.GetUltimoPagamento())
+                        .inDays;
 
-              return Text(
-                texto,
-                style: TextStyle(color: corTexto),
-              );
-            }).toList(),
-          ))
+                    if (aluno.UltimoPagamento == null) {
+                      diasDiferenca = -1;
+                    }
+
+                    String Transformar(DateTime data) {
+                      return '${data.day}/${data.month}/${data.year}';
+                    }
+
+                    texto =
+                        '${aluno.Nome}: ${Transformar(aluno.GetUltimoPagamento())}';
+
+                    if (diasDiferenca == 0) {
+                      texto = '${aluno.Nome}: Hoje';
+                      corTexto = Colors.red;
+                    } else if (diasDiferenca <= 0) {
+                      texto = '${aluno.Nome}: há ${diasDiferenca.abs()} dias';
+                      corTexto = Colors.red;
+                    } else if (diasDiferenca <= 4) {
+                      corTexto = Colors.orange;
+                      texto = '${aluno.Nome}: em ${diasDiferenca.abs()} dias';
+                    } else {
+                      corTexto = Colors.white;
+                      texto =
+                          '${aluno.Nome}: Daqui ${diasDiferenca.abs()} dias';
+                    }
+
+                    return Text(
+                      texto,
+                      style: TextStyle(color: corTexto),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          )
         ]));
   }
 }
