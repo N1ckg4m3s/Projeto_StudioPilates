@@ -236,7 +236,6 @@ Widget ConteudoTela(String ShowPage, void Function(String) SetShowPage) {
       return AgendamentoScreen(
         EnviarParaNovoAgendamento: () => SetShowPage("NOVOAGENDAMENTO"),
         EnviarParaSobre: (Aluno Data) {
-          debugPrint("Ir para sobre, com a data: ${Data.toString()}");
           DataParaSobre = Data;
           SetShowPage("NOVOAGENDAMENTO");
         },

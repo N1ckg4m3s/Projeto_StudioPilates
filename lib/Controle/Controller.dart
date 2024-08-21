@@ -23,7 +23,6 @@ class Controller {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   Future<void> adicionarDiaDaSemana(String nome, List<Horario> horarios) async {
-    // debugPrint("adicionarDiaDaSemana");
     final db = await _dbHelper.database;
 
     // Adicionar o dia da semana
@@ -41,7 +40,6 @@ class Controller {
   }
 
   Future<void> removerDosHorarios(Aluno aluno) async {
-    // debugPrint("removerDosHorarios");
     final db = await _dbHelper.database;
 
     var presencas = await db.query(
@@ -59,19 +57,7 @@ class Controller {
     }
   }
 
-  /*Future<void> adicionarHorarioNoDia(int diaSemanaId, String hora) async {
-    final db = await _dbHelper.database;
-    int horarioId = await db.insert('horario', {'hora': hora});
-    await db.insert(
-      'hora',
-      {'horario_id': horarioId, 'id': diaSemanaId, 'presenca': 0},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-  */
-
   Future<List<DiaSemana>> obterData() async {
-    // debugPrint("obterData");
     final db = await _dbHelper.database;
 
     final diaSemanas = await db.query('dia_semana');
@@ -106,7 +92,6 @@ class Controller {
   }
 
   Future<List<DiaSemana>> obterDiasDaSemana(int manter) async {
-    // debugPrint("obterDiasDaSemana");
     final db = await _dbHelper.database;
     final diaSemanas = await db.query('dia_semana');
     List<DiaSemana> horariosLivres = [];
@@ -142,7 +127,6 @@ class Controller {
   }
 
   Future<List<Horario>> obterHorariosDia(int diaSemanaId) async {
-    // debugPrint("obterHorariosDia");
     final db = await _dbHelper.database;
     final horarios = await db.query(
       'hora',
@@ -220,7 +204,6 @@ class Controller {
 
   // Obtem o dia da semana apenas pelo nome
   Future<DiaSemana> obterDiaPorString(String nomeDiaSemana) async {
-    // debugPrint("obterDiaPorString");
     try {
       final db = await _dbHelper.database;
 
@@ -292,7 +275,6 @@ class Controller {
 
   // Define as configurações padrões
   Future<void> definirConfiguracoes(Configuracoes config) async {
-    // debugPrint("definirConfiguracoes");
     final db = await _dbHelper.database;
     await db.insert(
         'configuracoes',
@@ -306,7 +288,6 @@ class Controller {
 
   // Obtem as configurações padrões
   Future<Configuracoes> obterConfiguracoes() async {
-    // debugPrint("obterConfiguracoes");
     try {
       final db = await _dbHelper.database;
       final List<Map<String, dynamic>> config = await db.query('configuracoes');
@@ -339,7 +320,6 @@ class Controller {
   }
 
   Future<String> gerarSiglasDoAluno(int id) async {
-    // debugPrint("gerarSiglasDoAluno");
     final db = await _dbHelper.database;
 
     // Consultar todas as presenças do aluno

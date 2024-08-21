@@ -11,7 +11,6 @@ class AlunosController {
 
   // Adicionar um novo aluno
   Future<Aluno> adicionarAluno(Aluno novoAluno) async {
-    debugPrint("adicionarAluno");
     try {
       final db = await _dbHelper.database;
 
@@ -21,7 +20,6 @@ class AlunosController {
         novoAluno.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
-      debugPrint("Aluno adicionado");
 
       if (novoAluno.PresencaSemana != null) {
         for (var hora in novoAluno.PresencaSemana!) {
@@ -34,7 +32,6 @@ class AlunosController {
           int horarioId;
 
           if (result.isEmpty) {
-            debugPrint("Não existia ...");
             // Adicionar o horário se não existir
             horarioId = await db.insert(
               'hora',
@@ -56,8 +53,6 @@ class AlunosController {
           );
         }
       }
-      var TodasPresenca = await db.query('presenca');
-      debugPrint('$TodasPresenca');
     } catch (e) {
       debugPrint('Erro ao adicionar aluno: $e');
     }
@@ -100,7 +95,6 @@ class AlunosController {
 
   // Obter todos os alunos
   Future<List<Aluno>> obterAlunos() async {
-    debugPrint("obterAlunos");
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query('aluno');
 
@@ -130,7 +124,6 @@ class AlunosController {
 
   // Obter faltas
   Future<List<Map<String, dynamic>>> obterFaltas() async {
-    debugPrint("obterFaltas");
     try {
       final db = await _dbHelper.database;
 
@@ -143,7 +136,6 @@ class AlunosController {
       INNER JOIN dia_semana ON presenca.dia_id = dia_semana.id
       WHERE presenca.presenca = 0; -- Considerando 0 como ausência
     ''');
-      debugPrint('$result');
 
       return result;
     } catch (e) {
@@ -154,7 +146,6 @@ class AlunosController {
 
   // Remover um aluno
   Future<void> removerAluno(Aluno aluno) async {
-    debugPrint("removerAluno");
     final db = await _dbHelper.database;
 
     // Remover aluno dos horários
@@ -170,7 +161,6 @@ class AlunosController {
 
   // Obter mensalidades
   Future<List<Aluno>> obterMensalidades(String filtro) async {
-    debugPrint("obterMensalidades");
     final alunos = await obterAlunos();
     DateTime agora = DateTime.now();
     return alunos.where((Aluno a) {
@@ -188,7 +178,6 @@ class AlunosController {
   }
 
   String DominutivoDiaSemanaByFaltas(Aluno aluno) {
-    debugPrint("DominutivoDiaSemanaByFaltas");
     List<String> siglas = [];
 
     if (aluno.PresencaSemana != null) {
@@ -242,9 +231,6 @@ class AlunosController {
           whereArgs: [idAluno, idHora, idDia],
         );
       }
-
-      debugPrint(
-          'Presença atualizada para o aluno $idAluno no dia $dia e hora $idHora.');
     } catch (e) {
       debugPrint("Erro ao definir a presença do aluno: $e");
     }

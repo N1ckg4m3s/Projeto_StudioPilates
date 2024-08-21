@@ -56,7 +56,6 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     ObterDatas() async {
-      debugPrint("${Data.toMap()}");
       _controller.text = Data.GetNome();
       _controllerData.text = '${Data.GetUltimoPagamento()}';
       _controllerAnotacao.text = Data.GetAnotacoes() ?? "";
@@ -70,7 +69,6 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
       }
     }
 
-    debugPrint("didChangeDependencies start");
     if (Data != null) {
       ObterDatas();
     }

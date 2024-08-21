@@ -23,8 +23,6 @@ class DatabaseHelper {
       // deleteDatabase(path);
       return await openDatabase(path,
           onCreate: (db, version) async {
-            debugPrint('Criando o banco de dados');
-
             // Criação das tabelas
             await db.execute('''
               CREATE TABLE dia_semana (
@@ -90,8 +88,6 @@ class DatabaseHelper {
                 {'nome': dia},
               );
             }
-
-            debugPrint('Tabelas e dias da semana criados');
           },
           version: 9,
           onUpgrade: (Database db, int oldVersion, int newVersion) async {
@@ -105,12 +101,5 @@ class DatabaseHelper {
       debugPrint('Erro ao inicializar o banco de dados: $e');
       rethrow;
     }
-  }
-
-  Future<void> checkTables() async {
-    final db = await database;
-    final tables =
-        await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table';");
-    debugPrint('Tabelas no banco de dados: $tables');
   }
 }
