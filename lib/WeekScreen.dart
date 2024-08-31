@@ -11,6 +11,8 @@ final List<String> InfoNavBar = [
   "QUARTA-FEIRA",
   "QUINTA-FEIRA",
   "SEXTA-FEIRA",
+  "SÁBADO",
+  "DOMINGO"
 ];
 
 class WeekScreen extends StatefulWidget {
