@@ -29,6 +29,8 @@ class AlunosController {
             whereArgs: [hora.Horario, hora.DiaSemana],
           );
 
+          debugPrint(result.toString());
+
           int horarioId;
 
           if (result.isEmpty) {
@@ -64,24 +66,41 @@ class AlunosController {
     final db = await _dbHelper.database;
 
     try {
+      debugPrint(alunoAtualizado.toMap().toString());
       await db.update(
         'aluno',
         alunoAtualizado.toMap(),
         where: 'id = ?',
         whereArgs: [alunoAtualizado.Id],
       );
-
+      debugPrint("to aq 1");
       await db.delete(
         'presenca',
         where: 'aluno_id = ?',
         whereArgs: [alunoAtualizado.Id],
       );
+      debugPrint("to aq 2");
 
       for (var hora in alunoAtualizado.PresencaSemana!) {
-        final horaId = await db.insert('hora', {
-          'horario': hora.Horario,
-          'dia_semana_id': hora.DiaSemana,
-        });
+        debugPrint("to aq 2.1");
+        var result = await db.query(
+          'hora',
+          where: 'horario = ? AND dia_semana_id = ?',
+          whereArgs: [hora.Horario, hora.DiaSemana],
+        );
+        debugPrint("to aq 2.2");
+        int horaId;
+        if (result.isEmpty) {
+          debugPrint("to aq 2.3");
+          horaId = await db.insert('hora', {
+            'horario': hora.Horario,
+            'dia_semana_id': hora.DiaSemana,
+          });
+        } else {
+          debugPrint("to aq 2.4");
+          horaId = result.first['id'] as int;
+        }
+        debugPrint("to aq 3");
 
         await db.insert('presenca', {
           'aluno_id': alunoAtualizado.Id,
@@ -134,7 +153,7 @@ class AlunosController {
       INNER JOIN aluno ON presenca.aluno_id = aluno.id
       INNER JOIN hora ON presenca.hora_id = hora.id
       INNER JOIN dia_semana ON presenca.dia_id = dia_semana.id
-      WHERE presenca.presenca = 0; -- Considerando 0 como ausência
+      WHERE presenca.presenca = 0;
     ''');
 
       return result;
@@ -157,21 +176,43 @@ class AlunosController {
       where: 'id = ?',
       whereArgs: [aluno.Id],
     );
+    await db.delete(
+      'presenca',
+      where: 'aluno_id = ?',
+      whereArgs: [aluno.Id],
+    );
   }
 
   // Obter mensalidades
   Future<List<Aluno>> obterMensalidades(String filtro) async {
     final alunos = await obterAlunos();
-    DateTime agora = DateTime.now();
+    DateTime agora = DateTime.now().add(const Duration(days: 26));
+    int diasDiferenca;
     return alunos.where((Aluno a) {
-      int diferencia = -agora.difference(a.GetUltimoPagamento()).inDays;
+      if (a.Parcelado! > 0 && a.Parcelado! <= (a.ParcelaPaga ?? 0)) {
+        debugPrint("Tem parcela, mas já foi tudo pago");
+        diasDiferenca = -agora
+            .difference(a.UltimoPagamento!.add(
+                Duration(days: 30 * (int.parse('${a.ModeloNegocios}') - 1))))
+            .inDays;
+      } else if (a.Parcelado! > 0) {
+        diasDiferenca = -agora
+            .difference(a.UltimoPagamento!.add(const Duration(days: 30)))
+            .inDays;
+      } else {
+        diasDiferenca = -agora
+            .difference(a.UltimoPagamento!
+                .add(Duration(days: (30 * int.parse('${a.ModeloNegocios}')))))
+            .inDays;
+      }
+      debugPrint('$filtro == $diasDiferenca');
 
       if (filtro == "VENCIDAS") {
-        return diferencia < 0;
+        return diasDiferenca <= 0;
       } else if (filtro == "ATÉ 4 DIAS") {
-        return diferencia > 0 && diferencia <= 4;
+        return diasDiferenca > 0 && diasDiferenca <= 4;
       } else if (filtro == "1 SEMANA") {
-        return diferencia > 4 && diferencia <= 7;
+        return diasDiferenca > 4 && diasDiferenca <= 7;
       }
       return true;
     }).toList();
@@ -183,7 +224,7 @@ class AlunosController {
     if (aluno.PresencaSemana != null) {
       for (var presenca in aluno.PresencaSemana!) {
         if (!presenca.Presenca) {
-          siglas.add(Tranfomacao[presenca.DiaSemana]!);
+          siglas.add(Tranfomacao['${presenca.DiaSemana}']!);
         }
       }
     }
@@ -297,6 +338,35 @@ class AlunosController {
     } catch (e) {
       debugPrint("Erro ao obter horários do aluno: $e");
       return [];
+    }
+  }
+
+  Future<List<Aluno>> ObterValoresPorFiltro(String filtro) async {
+    final alunos = await obterAlunos();
+    return alunos.where((Aluno a) {
+      debugPrint("${a.ModeloNegocios} // $filtro");
+      switch (filtro) {
+        case "MENSAIS":
+          return a.ModeloNegocios == '1';
+        case "BIMESTRAIS":
+          return a.ModeloNegocios == "2";
+        case "TRIMESTRAIS":
+          return a.ModeloNegocios == "3";
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
+  void LimparSemana() async {
+    final db = await _dbHelper.database;
+    try {
+      await db.execute('''
+      UPDATE presenca
+      SET presenca = 0
+    ''');
+    } catch (e) {
+      debugPrint("Deu CATCH LimparSemana $e");
     }
   }
 }

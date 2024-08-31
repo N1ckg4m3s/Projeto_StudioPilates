@@ -104,6 +104,7 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                 List<Aluno> alunos = snapshot.data!;
 
                 return GridView(
+                  padding: const EdgeInsets.all(5),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: AjustarQuantidades(WindowWidth),
                     mainAxisExtent: 40,
@@ -111,36 +112,72 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
                   children: alunos.map((aluno) {
                     Color corTexto;
                     String texto;
-                    int diasDiferenca = -DateTime.now()
-                        .difference(aluno.GetUltimoPagamento())
-                        .inDays;
 
-                    if (aluno.UltimoPagamento == null) {
-                      diasDiferenca = -1;
+                    String Nome = aluno.Nome;
+
+                    String Tipo =
+                        ["M", "B", "T"][int.parse(aluno.ModeloNegocios!) - 1];
+
+                    String Parcela = aluno.Parcelado! <= 0
+                        ? "Av"
+                        : "${aluno.ParcelaPaga ?? 0}/${aluno.Parcelado!}";
+
+                    String ProximoPag = "";
+
+                    DateTime? ultimoPagamento = aluno.GetUltimoPagamento();
+
+                    DateTime hoje = DateTime.now();
+                    int diasDiferenca;
+
+                    String TranformarDiferenca(int Dias) {
+                      if (Dias < 0) {
+                        return 'Vencido há ${-Dias}d';
+                      } else if (Dias == 0) {
+                        return 'Hj';
+                      } else if (Dias <= 7) {
+                        return '${Dias}dias';
+                      } else if (Dias > 7 && Dias <= 30) {
+                        int EmSemana = (Dias / 7).floor();
+                        return "${EmSemana}sem.";
+                      } else {
+                        int EmMes = (Dias / 30).floor();
+                        return "${EmMes}mes";
+                      }
                     }
 
-                    String Transformar(DateTime data) {
-                      return '${data.day}/${data.month}/${data.year}';
+                    if (aluno.Parcelado! > 0 &&
+                        aluno.Parcelado! <= (aluno.ParcelaPaga ?? 0)) {
+                      debugPrint("Tem parcela, mas já foi tudo pago");
+                      diasDiferenca = -hoje
+                          .difference(ultimoPagamento.add(Duration(
+                              days: 30 *
+                                  (int.parse('${aluno.ModeloNegocios}') - 1))))
+                          .inDays;
+                      ProximoPag = TranformarDiferenca(diasDiferenca);
+                    } else if (aluno.Parcelado! > 0) {
+                      diasDiferenca = -hoje
+                          .difference(
+                              ultimoPagamento.add(const Duration(days: 30)))
+                          .inDays;
+                      ProximoPag = TranformarDiferenca(diasDiferenca);
+                    } else {
+                      diasDiferenca = -hoje
+                          .difference(ultimoPagamento.add(Duration(
+                              days:
+                                  (30 * int.parse('${aluno.ModeloNegocios}')))))
+                          .inDays;
+                      ProximoPag = TranformarDiferenca(diasDiferenca);
                     }
 
-                    texto =
-                        '${aluno.Nome}: ${Transformar(aluno.GetUltimoPagamento())}';
-
-                    if (diasDiferenca == 0) {
-                      texto = '${aluno.Nome}: Hoje';
+                    if (diasDiferenca <= 1) {
                       corTexto = Colors.red;
-                    } else if (diasDiferenca <= 0) {
-                      texto = '${aluno.Nome}: há ${diasDiferenca.abs()} dias';
-                      corTexto = Colors.red;
-                    } else if (diasDiferenca <= 4) {
+                    } else if (diasDiferenca <= 7) {
                       corTexto = Colors.orange;
-                      texto = '${aluno.Nome}: em ${diasDiferenca.abs()} dias';
                     } else {
                       corTexto = Colors.white;
-                      texto =
-                          '${aluno.Nome}: Daqui ${diasDiferenca.abs()} dias';
                     }
 
+                    texto = "$Nome: [$Tipo] [$Parcela] [$ProximoPag]";
                     return Text(
                       texto,
                       style: TextStyle(color: corTexto),

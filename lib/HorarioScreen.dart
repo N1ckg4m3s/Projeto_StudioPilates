@@ -28,7 +28,7 @@ final ValueNotifier<String> topicoSelecionadoNotifier =
     ValueNotifier("SEGUNDA-FEIRA");
 final ValueNotifier<bool> droweAbertoNotifier = ValueNotifier(false);
 DiaSemana? Dia;
-bool DroweAberto = false;
+// bool DroweAberto = false;
 
 class StateHorarioScreen extends State<HorarioScreen> {
   @override
@@ -37,6 +37,7 @@ class StateHorarioScreen extends State<HorarioScreen> {
     CarregarDadosIniciais() async {
       Dia = await Controller().obterDiaPorString('SEGUNDA-FEIRA');
       topicoSelecionadoNotifier.value = "07:00";
+      droweAbertoNotifier.value = false;
     }
 
     CarregarDadosIniciais();
@@ -63,7 +64,8 @@ class StateHorarioScreen extends State<HorarioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
+    EnviarParaInicio() =>
+        {Navigator.pushReplacementNamed(context, "/WeekScreen")};
 
     var WindowWidth = MediaQuery.of(context).size.width;
     double WindowHeight = MediaQuery.of(context).size.height;
@@ -193,11 +195,11 @@ Widget NavBar(WindowWidth, WindowHeight, SelecionarTopico, setState,
                   builder: (context, topicoSelecionado, child) {
                     return TextButton(
                       onPressed: () => {
-                        setState(
-                          () {
-                            SelecionarTopico(e.Hora);
-                          },
-                        )
+                        // setState(
+                        //   () {
+                        SelecionarTopico(e.Hora)
+                        //   },
+                        // )
                       },
                       style: ButtonStyle(
                         overlayColor:
@@ -279,92 +281,110 @@ Widget ConteudoTela(
         ),
         Expanded(
           child: ListView(
-            children: Dia?.Horarios.isEmpty ?? true
-                ? [const Text("")]
-                : Dia!.Horarios
-                    .firstWhere((element) => element.Hora == TopicoSelecionado)
-                    .IdAlunos
-                    .map(
-                    (IdAluno) {
-                      return FutureBuilder<Aluno>(
-                        future: AlunosController().obterAlunoPorId(IdAluno),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CarregandoDataBar();
-                          } else if (snapshot.hasError) {
-                            return const Text("ERROR");
-                          } else if (!snapshot.hasData) {
-                            return const Text("No data");
-                          }
-                          final aluno = snapshot.data!;
-
-                          return FutureBuilder<bool>(
-                            future: AlunosController().ObterPresencaAluno(
-                                IdAluno,
-                                TopicoSelecionado,
-                                DiaSemanaSelecionado),
-                            builder: (context, presencaSnapshot) {
-                              if (presencaSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const CarregandoDataBar();
-                              } else if (presencaSnapshot.hasError) {
-                                return const Text("ERROR");
-                              } else if (!presencaSnapshot.hasData) {
-                                return const Text("No data");
-                              }
-
-                              bool presenca = presencaSnapshot.data!;
-
-                              return TextButton(
-                                onPressed: () async {
-                                  try {
-                                    int idDaHora = await Controller()
-                                        .obterIdHoraPorString(
-                                            TopicoSelecionado);
-
-                                    AlunosController().DefinirPresencaAluno(
-                                        aluno.Id, Dia.Nome, idDaHora);
-
-                                    // Atualiza a UI
-                                    setState(() {});
-                                  } catch (e) {
-                                    debugPrint(
-                                        "Erro ao definir a presença do aluno: $e");
+            children: Dia == null
+                ? [const Text("Dia? == null")]
+                : Dia.Horarios.isEmpty
+                    ? [const Text("Dia.Horarios.isEmpty")]
+                    : Dia.Horarios.where(
+                        (element) => element.Hora == TopicoSelecionado,
+                      ).toList().isEmpty
+                        ? [
+                            const Center(
+                                child: Text(
+                              "NENHUM ALUNO NESSE HORARIO",
+                              style: TextStyle(color: Colors.white),
+                            ))
+                          ]
+                        : Dia.Horarios.firstWhere(
+                                (element) => element.Hora == TopicoSelecionado)
+                            .IdAlunos
+                            .map(
+                            (IdAluno) {
+                              return FutureBuilder<Aluno>(
+                                future:
+                                    AlunosController().obterAlunoPorId(IdAluno),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CarregandoDataBar();
+                                  } else if (snapshot.hasError) {
+                                    return const Text("ERROR");
+                                  } else if (!snapshot.hasData) {
+                                    return const Text("No data");
                                   }
+                                  final aluno = snapshot.data!;
+
+                                  return FutureBuilder<bool>(
+                                    future: AlunosController()
+                                        .ObterPresencaAluno(
+                                            IdAluno,
+                                            TopicoSelecionado,
+                                            DiaSemanaSelecionado),
+                                    builder: (context, presencaSnapshot) {
+                                      if (presencaSnapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const CarregandoDataBar();
+                                      } else if (presencaSnapshot.hasError) {
+                                        return const Text("ERROR");
+                                      } else if (!presencaSnapshot.hasData) {
+                                        return const Text("No data");
+                                      }
+
+                                      bool presenca = presencaSnapshot.data!;
+
+                                      return TextButton(
+                                        onPressed: () async {
+                                          try {
+                                            int idDaHora = await Controller()
+                                                .obterIdHoraPorString(
+                                                    TopicoSelecionado);
+
+                                            AlunosController()
+                                                .DefinirPresencaAluno(aluno.Id,
+                                                    Dia.Nome, idDaHora);
+
+                                            // Atualiza a UI
+                                            setState(() {});
+                                          } catch (e) {
+                                            debugPrint(
+                                                "Erro ao definir a presença do aluno: $e");
+                                          }
+                                        },
+                                        style: ButtonStyle(
+                                          overlayColor:
+                                              MaterialStateProperty.all(
+                                                  Colors.transparent),
+                                        ),
+                                        child: GlassContainer(
+                                          Cor: presenca
+                                              ? const Color.fromRGBO(
+                                                  12, 255, 32, 1)
+                                              : const Color.fromRGBO(
+                                                  255, 255, 255, 1),
+                                          Rotate: 20,
+                                          Width: 0,
+                                          Height: 55,
+                                          Child: Center(
+                                            child: Text(
+                                              aluno.Nome,
+                                              style: TextStyle(
+                                                color: presenca
+                                                    ? const Color.fromRGBO(
+                                                        12, 255, 32, 1)
+                                                    : const Color.fromRGBO(
+                                                        255, 255, 255, 1),
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
                                 },
-                                style: ButtonStyle(
-                                  overlayColor: MaterialStateProperty.all(
-                                      Colors.transparent),
-                                ),
-                                child: GlassContainer(
-                                  Cor: presenca
-                                      ? const Color.fromRGBO(12, 255, 32, 1)
-                                      : const Color.fromRGBO(255, 255, 255, 1),
-                                  Rotate: 20,
-                                  Width: 0,
-                                  Height: 55,
-                                  Child: Center(
-                                    child: Text(
-                                      aluno.Nome,
-                                      style: TextStyle(
-                                        color: presenca
-                                            ? const Color.fromRGBO(
-                                                12, 255, 32, 1)
-                                            : const Color.fromRGBO(
-                                                255, 255, 255, 1),
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                               );
                             },
-                          );
-                        },
-                      );
-                    },
-                  ).toList(),
+                          ).toList(),
           ),
         ),
       ],

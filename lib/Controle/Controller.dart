@@ -23,23 +23,6 @@ Map<String, String> Tranfomacao = {
 class Controller {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  Future<void> adicionarDiaDaSemana(String nome, List<Horario> horarios) async {
-    final db = await _dbHelper.database;
-
-    // Adicionar o dia da semana
-    int diaSemanaId = await db.insert('dia_semana', {'nome': nome});
-
-    // Adicionar horários
-    for (var horario in horarios) {
-      int horarioId = await db.insert('horario', {'hora': horario.Hora});
-      await db.insert('hora', {
-        'horario_id': horarioId,
-        'dia_semana_id': diaSemanaId,
-        'presenca': 0, // Presença default como não marcada
-      });
-    }
-  }
-
   Future<void> removerDosHorarios(Aluno aluno) async {
     final db = await _dbHelper.database;
 
@@ -92,41 +75,6 @@ class Controller {
     return data;
   }
 
-  Future<List<DiaSemana>> obterDiasDaSemana(int manter) async {
-    final db = await _dbHelper.database;
-    final diaSemanas = await db.query('dia_semana');
-    List<DiaSemana> horariosLivres = [];
-
-    for (var diaSemana in diaSemanas) {
-      final horarios = await db.query(
-        'hora',
-        where: 'dia_semana_id = ?',
-        whereArgs: [diaSemana['id']],
-      );
-
-      List<Horario> horariosList = [];
-      for (var horario in horarios) {
-        var horarioDetails = await db.query(
-          'horario',
-          where: 'id = ?',
-          whereArgs: [horario['horario_id']],
-        );
-        horariosList.add(Horario(
-          Hora: "${horarioDetails[0]['hora']}",
-          IdAlunos: [], // Popular quando necessário
-        ));
-      }
-
-      if (horariosList.isNotEmpty) {
-        horariosLivres.add(DiaSemana(
-          Nome: "${diaSemana['nome']}",
-          Horarios: horariosList,
-        ));
-      }
-    }
-    return horariosLivres;
-  }
-
   Future<List<Horario>> obterHorariosDia(int diaSemanaId) async {
     final db = await _dbHelper.database;
     final horarios = await db.query(
@@ -148,6 +96,21 @@ class Controller {
       ));
     }
     return horariosList;
+  }
+
+  Future<String> ObterDiaDaSemanaPorId(int Id) async {
+    final db = await _dbHelper.database;
+    try {
+      final diaSemanaResult = await db.query(
+        'dia_semana',
+        where: 'id = ?',
+        whereArgs: [Id],
+      );
+      return '${diaSemanaResult.first['nome']}';
+    } catch (e) {
+      debugPrint("Deu CATCH ObterDiaDaSemanaPorId $e");
+      return "";
+    }
   }
 
   // Obtem os alunos que estão no horariro de um determinado dia
@@ -215,6 +178,8 @@ class Controller {
         whereArgs: [nomeDiaSemana],
       );
 
+      debugPrint('Resultado DiaSemana: ${diaSemanaResult.toString()}');
+
       if (diaSemanaResult.isEmpty) {
         return DiaSemana(Nome: nomeDiaSemana, Horarios: []);
       }
@@ -227,6 +192,8 @@ class Controller {
         where: 'dia_semana_id = ?',
         whereArgs: [diaSemanaId],
       );
+
+      debugPrint('Resultado Hora: ${horariosResult.toString()}');
 
       List<Horario> horariosList = [];
 
@@ -242,7 +209,6 @@ class Controller {
 
         List<int> alunoIds =
             presencaResult.map<int>((e) => e['aluno_id'] as int).toList();
-
         List<int> alunosList = [];
         for (var alunoId in alunoIds) {
           final alunoResult = await db.query(
@@ -250,7 +216,6 @@ class Controller {
             where: 'id = ?',
             whereArgs: [alunoId],
           );
-
           if (alunoResult.isNotEmpty) {
             alunosList.add(Aluno.fromMap(alunoResult.first).Id);
           }
@@ -403,6 +368,33 @@ class Controller {
     } catch (e) {
       debugPrint("Erro ao obter alunos da hora: $e");
       return []; // Retorna uma lista vazia em caso de erro
+    }
+  }
+
+  void TODOS_OS_QUERY() async {
+    final db = await _dbHelper.database;
+    try {
+      final QueryPresenca = await db.query('presenca');
+      final QueryDia_semana = await db.query('dia_semana');
+      final QueryHora = await db.query('hora');
+      // final QueryHorario = await db.query('horario');
+      final QueryAluno = await db.query('aluno');
+
+      debugPrint(
+          "Resultado QueryPresenca= ${QueryPresenca.toString()}"); // Verificar pois tem data -1 || null
+      debugPrint("=============================");
+      debugPrint(
+          "Resultado QueryDia_semana= ${QueryDia_semana.toString()}"); // Tudo certo
+      debugPrint("=============================");
+      debugPrint(
+          "Resultado QueryHora= ${QueryHora.toString()}"); // Verificar Dados repetidos com ID diferente.
+      debugPrint("=============================");
+      // debugPrint("Resultado QueryHorario= ${QueryHorario.toString()}");
+      // debugPrint("=============================");
+      debugPrint("Resultado QueryAluno= ${QueryAluno.toString()}"); // OK
+      debugPrint("=============================");
+    } catch (e) {
+      debugPrint("Deu CATCH TODOS_OS_QUERY $e");
     }
   }
 }

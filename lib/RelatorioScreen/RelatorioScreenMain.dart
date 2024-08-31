@@ -1,7 +1,9 @@
 // ignore_for_file: non_constant_identifier_names, file_names
 
+import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/RelatorioScreen/FaltasGerais.dart';
 import 'package:app_pilates/RelatorioScreen/Mensalidades.dart';
+import 'package:app_pilates/RelatorioScreen/Pagamentos.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 
@@ -12,8 +14,8 @@ class RelatorioScreen extends StatefulWidget {
   RelatorioScreenState createState() => RelatorioScreenState();
 }
 
-final List<String> Paginas = ["FALTAS GERAIS", "MENSALIDADES"];
-String ShowPage = "FALTAS GERAIS";
+final List<String> Paginas = ["FALTAS GERAIS", "MENSALIDADES", "VALORES"];
+String ShowPage = "VALORES";
 bool DroweAberto = false;
 
 class RelatorioScreenState extends State<RelatorioScreen> {
@@ -25,7 +27,7 @@ class RelatorioScreenState extends State<RelatorioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
+    EnviarParaInicio() => Navigator.pop(context);
 
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
@@ -134,12 +136,33 @@ Widget NavBar(WindowWidth, WindowHeight, setState, EnviarParaInicio) {
                       Child: Center(
                         child: Text(
                           e,
-                          style: const TextStyle(
-                            color: Color.fromRGBO(255, 255, 255, 1),
+                          style: TextStyle(
+                            color: e != ShowPage
+                                ? const Color.fromRGBO(255, 255, 255, 1)
+                                : const Color.fromRGBO(173, 99, 173, 1),
                           ),
                         ),
                       ),
                     ))).toList()),
+          ),
+          TextButton(
+            onPressed: AlunosController().LimparSemana,
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all(Colors.transparent),
+            ),
+            child: GlassContainer(
+              Cor: const Color.fromRGBO(255, 255, 255, 1),
+              Width: (WindowWidth * .2),
+              MinWidth: 200,
+              Rotate: 7,
+              Height: 35,
+              Child: const Center(
+                child: Text(
+                  "LIMPAR FALTAS",
+                  style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
+                ),
+              ),
+            ),
           ),
           TextButton(
             onPressed: EnviarParaInicio,
@@ -169,5 +192,7 @@ Widget ConteudoTela(setState) {
       ? const FaltasGeraisScreen()
       : ShowPage == "MENSALIDADES"
           ? const MensalidadesScreen()
-          : const Text("Deu B.O aqui");
+          : ShowPage == "VALORES"
+              ? const PagamentosScreen()
+              : const Text("Deu B.O aqui");
 }

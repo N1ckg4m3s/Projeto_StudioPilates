@@ -21,17 +21,18 @@ class DatabaseHelper {
     try {
       String path = join(await getDatabasesPath(), 'app_pilates.db');
       // deleteDatabase(path);
-      return await openDatabase(path,
-          onCreate: (db, version) async {
-            // Criação das tabelas
-            await db.execute('''
+      return await openDatabase(
+        path,
+        onCreate: (db, version) async {
+          // Criação das tabelas
+          await db.execute('''
               CREATE TABLE dia_semana (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL
               );
             ''');
 
-            await db.execute('''
+          await db.execute('''
               CREATE TABLE hora (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 horario TEXT NOT NULL,
@@ -40,18 +41,20 @@ class DatabaseHelper {
               );
             ''');
 
-            await db.execute('''
+          await db.execute('''
               CREATE TABLE aluno (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nome TEXT NOT NULL,
                 anotacoes TEXT,
                 ultimo_pagamento TEXT,
-                parcelado INTEGER, -- Usar 0 para falso e 1 para verdadeiro
+                parcelado INTEGER,
+                parcela_paga INTEGER,
+                valor_total INTEGER,
                 modelo_negocios TEXT
               );
             ''');
 
-            await db.execute('''
+          await db.execute('''
               CREATE TABLE presenca (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 aluno_id INTEGER,
@@ -63,7 +66,7 @@ class DatabaseHelper {
               );
             ''');
 
-            await db.execute('''
+          await db.execute('''
               CREATE TABLE configuracoes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 horas_trabalhadas TEXT,
@@ -72,31 +75,25 @@ class DatabaseHelper {
               );
             ''');
 
-            List<String> diasSemana = [
-              "SEGUNDA-FEIRA",
-              "TERÇA-FEIRA",
-              "QUARTA-FEIRA",
-              "QUINTA-FEIRA",
-              "SEXTA-FEIRA",
-              "SÁBADO",
-              "DOMINGO"
-            ];
+          List<String> diasSemana = [
+            "SEGUNDA-FEIRA",
+            "TERÇA-FEIRA",
+            "QUARTA-FEIRA",
+            "QUINTA-FEIRA",
+            "SEXTA-FEIRA",
+            "SÁBADO",
+            "DOMINGO"
+          ];
 
-            for (var dia in diasSemana) {
-              await db.insert(
-                'dia_semana',
-                {'nome': dia},
-              );
-            }
-          },
-          version: 9,
-          onUpgrade: (Database db, int oldVersion, int newVersion) async {
-            if (oldVersion < 9) {
-              await db.execute('''
-              ALTER TABLE hora ADD COLUMN presenca BOOLEAN;
-            ''');
-            }
-          });
+          for (var dia in diasSemana) {
+            await db.insert(
+              'dia_semana',
+              {'nome': dia},
+            );
+          }
+        },
+        version: 11,
+      );
     } catch (e) {
       debugPrint('Erro ao inicializar o banco de dados: $e');
       rethrow;

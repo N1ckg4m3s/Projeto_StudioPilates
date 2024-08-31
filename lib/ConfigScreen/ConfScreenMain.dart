@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, file_names
 
+// import 'package:app_pilates/RelatorioScreen/RelatorioScreenMain.dart';
 import 'package:flutter/material.dart';
 import 'package:app_pilates/Componentes/GlassContainer.dart';
 import 'Aluno.dart';
@@ -30,7 +31,7 @@ class ConfigScreenState extends State<ConfigScreen> {
 
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => Navigator.pushNamed(context, "/WeekScreen");
+    EnviarParaInicio() => Navigator.pop(context);
 
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
@@ -194,9 +195,10 @@ Widget NavBar(
                   Child: Center(
                     child: Text(
                       e,
-                      style: const TextStyle(
-                        color: Color.fromRGBO(255, 255, 255, 1),
-                      ),
+                      style: TextStyle(
+                          color: e != ShowPage
+                              ? Colors.white
+                              : const Color.fromRGBO(173, 99, 173, 1)),
                     ),
                   ),
                 ),

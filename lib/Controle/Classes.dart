@@ -1,6 +1,5 @@
-// ignore_for_file: non_constant_identifier_names, file_names
-
-import 'package:app_pilates/Controle/AlunosController.dart';
+// ignore_for_file: non_constant_identifier_names, file_names, unrelated_type_equality_checks, camel_case_types
+import 'AlunosController.dart';
 
 class DiaSemana {
   String Nome;
@@ -41,24 +40,6 @@ class Horario {
   }
 }
 
-class FormatoDeData {
-  String Ano;
-  String Mes;
-  String Dia;
-  FormatoDeData({
-    required this.Ano,
-    required this.Mes,
-    required this.Dia,
-  });
-
-  String ParaTexto(bool Humano) {
-    if (Humano) {
-      return '$Dia / $Mes / $Ano';
-    }
-    return '$Ano / $Mes / $Dia';
-  }
-}
-
 class Hora {
   String Horario;
   int DiaSemana;
@@ -83,7 +64,9 @@ class Aluno {
   String Nome;
   String? Anotacoes;
   DateTime? UltimoPagamento;
-  bool? Parcelado;
+  int? Parcelado;
+  int? ParcelaPaga;
+  int? ValorTotal;
   String? ModeloNegocios;
   List<Hora>? PresencaSemana;
 
@@ -94,50 +77,13 @@ class Aluno {
     this.UltimoPagamento,
     this.ModeloNegocios,
     this.PresencaSemana,
+    this.ParcelaPaga,
     this.Parcelado,
+    this.ValorTotal,
   });
-
-  //SETTERS
-  SetNome(String NovoNome) {
-    Nome = NovoNome;
-  }
-
-  SetAnotacoes(String NovaAnotacao) {
-    Anotacoes = NovaAnotacao;
-  }
-
-  SetUltimoPagamento(DateTime DataPagamento, int Modelo, bool Parcelado) {
-    UltimoPagamento = DataPagamento;
-    ModeloNegocios = '$Modelo';
-    Parcelado = Parcelado;
-  }
-
-  SetModeloNegocios(String NovoModeloNegocios) {
-    ModeloNegocios = NovoModeloNegocios;
-  }
-
-  SetPresenca(String Horario, String DiaSemana) {
-    PresencaSemana!
-            .firstWhere((element) =>
-                element.DiaSemana == DiaSemana && element.Horario == Horario)
-            .Presenca =
-        !PresencaSemana!
-            .firstWhere((element) =>
-                element.DiaSemana == DiaSemana && element.Horario == Horario)
-            .Presenca;
-  }
-
-  SetPresencaSemana(List<Hora> Esquema) {
-    PresencaSemana = Esquema;
-  }
-
   //GETTERS
   String GetNome() {
     return Nome;
-  }
-
-  String GetAnotacoes() {
-    return Anotacoes!;
   }
 
   String GetUltimoPagamentoFormatoYMD() {
@@ -148,24 +94,8 @@ class Aluno {
   }
 
   DateTime GetUltimoPagamento() {
-    return UltimoPagamento!
-        .add(Duration(days: 30 * int.parse(ModeloNegocios!)));
-  }
-
-  String GetModeloNegocios() {
-    return ModeloNegocios!;
-  }
-
-  bool GetPresenca(String horario, String diaSemana) {
-    try {
-      Hora horaEncontrada = PresencaSemana!.firstWhere(
-        (element) =>
-            element.DiaSemana == diaSemana && element.Horario == horario,
-      );
-      return horaEncontrada.Presenca;
-    } catch (e) {
-      return false;
-    }
+    return UltimoPagamento!; //!
+    //.add(Duration(days: 30 * int.parse(ModeloNegocios!)));
   }
 
   Map<String, dynamic> toMap() {
@@ -173,7 +103,9 @@ class Aluno {
       'nome': Nome,
       'anotacoes': Anotacoes,
       'ultimo_pagamento': UltimoPagamento?.toIso8601String(),
-      'parcelado': Parcelado == true ? 1 : 0,
+      'parcelado': Parcelado,
+      'parcela_paga': ParcelaPaga ?? 0,
+      'valor_total': ValorTotal,
       'modelo_negocios': ModeloNegocios,
     };
   }
@@ -181,14 +113,14 @@ class Aluno {
   // Criar um objeto Aluno a partir de um mapa (para leitura do banco de dados)
   factory Aluno.fromMap(Map<String, dynamic> map) {
     return Aluno(
-      Id: map['id'],
-      Nome: map['nome'],
-      Anotacoes: map['anotacoes'],
-      UltimoPagamento: DateTime.parse(map['ultimo_pagamento']),
-      Parcelado: map['parcelado'] == 1,
-      ModeloNegocios: map['modelo_negocios'],
-      // PresencaSemana pode ser populada separadamente, se necessário
-    );
+        Id: map['id'],
+        Nome: map['nome'],
+        Anotacoes: map['anotacoes'],
+        UltimoPagamento: DateTime.parse(map['ultimo_pagamento']),
+        Parcelado: map['parcelado'],
+        ModeloNegocios: map['modelo_negocios'],
+        ParcelaPaga: map['parcela_paga'],
+        ValorTotal: map['valor_total']);
   }
 }
 

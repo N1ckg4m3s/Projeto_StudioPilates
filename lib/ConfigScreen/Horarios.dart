@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, file_names
+// ignore_for_file: non_constant_identifier_names, file_names, avoid_print
 
 import 'package:app_pilates/Controle/Classes.dart';
 import 'package:app_pilates/Controle/Controller.dart';
@@ -55,8 +55,6 @@ class HorarioScreenState extends State<HorarioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
-
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
 
@@ -70,7 +68,7 @@ class HorarioScreenState extends State<HorarioScreen> {
     double TamanhoTexto = WindowWidth > 400 ? 25 : 20;
 
     return GlassContainer(
-      Cor: Color.fromRGBO(255, 255, 255, 1),
+      Cor: const Color.fromRGBO(255, 255, 255, 1),
       Width: WindowWidth > 601
           ? (WindowWidth * .2) >= 200
               ? (WindowWidth * .8) - 30
@@ -103,16 +101,16 @@ class HorarioScreenState extends State<HorarioScreen> {
                           Width: 0,
                           Height: 0,
                           Cor: !_horasTrabalhadas.contains(index + 6)
-                              ? Color.fromRGBO(255, 255, 255, 1)
-                              : Color.fromRGBO(173, 99, 173, 1),
+                              ? const Color.fromRGBO(255, 255, 255, 1)
+                              : const Color.fromRGBO(173, 99, 173, 1),
                           Rotate: !_horasTrabalhadas.contains(index) ? 50 : 20,
                           Child: Center(
                             child: Text(
                               '${(index + 6) <= 9 ? '0${index + 6}' : (index + 6)}:00',
                               style: TextStyle(
                                   color: !_horasTrabalhadas.contains(index + 6)
-                                      ? Color.fromRGBO(255, 255, 255, 1)
-                                      : Color.fromRGBO(173, 99, 173, 1),
+                                      ? const Color.fromRGBO(255, 255, 255, 1)
+                                      : const Color.fromRGBO(173, 99, 173, 1),
                                   fontSize: TamanhoTexto),
                             ),
                           ),

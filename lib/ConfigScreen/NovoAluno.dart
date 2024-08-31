@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, file_names, must_be_immutable, no_logic_in_create_state, prefer_typing_uninitialized_variables, empty_catches, use_build_context_synchronously, unnecessary_null_comparison
+// ignore_for_file: non_constant_identifier_names, file_names, must_be_immutable, no_logic_in_create_state, prefer_typing_uninitialized_variables, empty_catches, use_build_context_synchronously, unnecessary_null_comparison, library_private_types_in_public_api
 
 import 'package:app_pilates/Controle/AlunosController.dart';
 import 'package:app_pilates/Controle/Classes.dart';
@@ -22,7 +22,7 @@ final List<String> DiasDaSemana = [
   "QUINTA-FEIRA",
   "SEXTA-FEIRA",
 ];
-
+final List<String> OpcoesContratacao = ['Avista', '2x', '3x'];
 List<String> ListaRegimes = ["Mensal", "Bimestral", "TriMestral"];
 
 String VendoDiaSemana = "";
@@ -31,8 +31,12 @@ final TextEditingController _controllerAnotacao = TextEditingController();
 final TextEditingController _controllerData = TextEditingController();
 final TextEditingController _controllerRegime =
     TextEditingController(text: 'Mensal');
+final TextEditingController _controllerValor = TextEditingController();
+final TextEditingController _prestacoesSelecionado =
+    TextEditingController(text: "Avista");
 
-int EtapaAtual = 0; //
+int? ParcelasPagas;
+int EtapaAtual = 1; //
 
 class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   var Data;
@@ -44,10 +48,13 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     super.initState();
     EtapaAtual = 0;
     VendoDiaSemana = "";
+    ParcelasPagas = 0;
     _controller.text = "";
     _controllerAnotacao.text = "";
+    _controllerValor.text = "";
     _controllerData.text = "";
     _controllerRegime.text = "Mensal";
+    _prestacoesSelecionado.text = "Avista";
     HorariosSelecionados.clear();
   }
 
@@ -55,17 +62,25 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     ObterDatas() async {
+      List<Hora> HorariosMarcados =
+          await AlunosController().ObterHorariosAluno(Data.Id);
+
+      for (var H in HorariosMarcados) {
+        String DiaSemanaName =
+            await Controller().ObterDiaDaSemanaPorId(H.DiaSemana);
+
+        HorariosSelecionados.add(DataEnvio_Week_Horario(
+            DiaDaSemana: DiaSemanaName, HorarioSelecionado: H.Horario));
+      }
+
       _controller.text = Data.GetNome();
       _controllerData.text = '${Data.GetUltimoPagamento()}';
-      _controllerAnotacao.text = Data.GetAnotacoes() ?? "";
-      _controllerRegime.text =
-          ListaRegimes[int.parse(Data.GetModeloNegocios()) - 1];
+      _controllerAnotacao.text = Data.Anotacoes ?? "";
+      _controllerRegime.text = ListaRegimes[int.parse(Data.ModeloNegocios) - 1];
+      _controllerValor.text = '${Data.ValorTotal}';
 
-      await AlunosController().ObterHorariosAluno(Data.Id);
-      for (var H in Data.PresencaSemana!) {
-        HorariosSelecionados.add(DataEnvio_Week_Horario(
-            DiaDaSemana: H.DiaSemana, HorarioSelecionado: H.Horario));
-      }
+      _prestacoesSelecionado.text =
+          OpcoesContratacao[Data.Parcelado == 0 ? 0 : Data.Parcelado - 1];
     }
 
     if (Data != null) {
@@ -134,10 +149,20 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
         EtapaAtual += 1;
       });
     } else if (EtapaAtual == 1) {
+      debugPrint(_prestacoesSelecionado.text);
+
       if (_controllerData.text.isEmpty) {
         MsgErro("Esqueceu da data de registro");
         return;
       }
+      if (_controllerValor.text.isEmpty) {
+        MsgErro("Esqueceu do Valor");
+        return;
+      }
+      int IndexOpcoes = OpcoesContratacao.indexOf(_prestacoesSelecionado.text);
+      _prestacoesSelecionado.text =
+          '${IndexOpcoes == 0 ? IndexOpcoes : IndexOpcoes + 1}';
+
       _controllerRegime.text =
           '${ListaRegimes.indexOf(_controllerRegime.text) + 1}';
       SalvarNovoAgendamento();
@@ -154,26 +179,18 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
           Presenca: false,
           DiaSemana: diaSemanaId));
     }
-
-    _controllerRegime.text =
-        '${ListaRegimes.indexOf(_controllerRegime.text) + 1}';
-
     Aluno novoAluno = Aluno(
-      Id: -1,
-      Nome: _controller.text,
-      PresencaSemana: HorasPraPresenca,
-      Anotacoes: _controllerAnotacao.text,
-      UltimoPagamento: DateTime.parse(_controllerData.text),
-      ModeloNegocios: _controllerRegime.text,
-    );
+        Id: (Data != null) ? -1 : Data.Id,
+        Nome: _controller.text,
+        PresencaSemana: HorasPraPresenca,
+        Anotacoes: _controllerAnotacao.text,
+        UltimoPagamento: DateTime.parse(_controllerData.text),
+        ModeloNegocios: _controllerRegime.text,
+        Parcelado: int.parse(_prestacoesSelecionado.text),
+        ValorTotal: int.parse(_controllerValor.text),
+        ParcelaPaga: ParcelasPagas);
 
     if (Data != null) {
-      // Atualiza dados existentes
-      Data.SetNome(_controller.text);
-      Data.SetAnotacoes(_controllerAnotacao.text);
-      Data.SetUltimoPagamento(DateTime.parse(_controllerData.text),
-          int.parse(_controllerRegime.text), false);
-      Data.SetPresencaSemana(HorasPraPresenca);
       AlunosController().atualizaAluno(novoAluno);
     } else {
       novoAluno = await AlunosController().adicionarAluno(novoAluno);
@@ -183,11 +200,19 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     _controller.text = "";
     EtapaAtual = 0;
     HorariosSelecionados.clear();
-    Navigator.pushNamed(context, "/WeekScreen");
+    Navigator.pushReplacementNamed(context, "/WeekScreen");
   }
 
   void RemoverAluno() {
     AlunosController().removerAluno(Data);
+  }
+
+  void PagarMensalidade() {
+    int IndexOpcoes = OpcoesContratacao.indexOf(_prestacoesSelecionado.text);
+    _prestacoesSelecionado.text =
+        '${IndexOpcoes == 0 ? IndexOpcoes : IndexOpcoes + 1}';
+    ParcelasPagas = ParcelasPagas ?? 0 + 1;
+    SalvarNovoAgendamento();
   }
 
   bool CheckSeSelecionado(String DiaDaSemana, String HoraSelecionada) {
@@ -237,7 +262,8 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    EnviarParaInicio() => {Navigator.pushNamed(context, "/WeekScreen")};
+    EnviarParaInicio() =>
+        {Navigator.pushReplacementNamed(context, "/WeekScreen")};
     var WindowWidth = MediaQuery.of(context).size.width;
     var WindowHeight = MediaQuery.of(context).size.height;
     return GlassContainer(
@@ -266,9 +292,10 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
                 AdicionarHorario,
                 RemoverHorario,
                 Data),
-          if (EtapaAtual == 1) SegundaEtapa(selectDate, context, setState),
-          BotoesFimPagina(Data, ProximaEtapa, SalvarNovoAgendamento,
-              RemoverAluno, EnviarParaInicio, WindowWidth)
+          if (EtapaAtual == 1)
+            SegundaEtapa(selectDate, context, setState, WindowWidth),
+          BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
+              PagarMensalidade, WindowWidth)
         ],
       ),
     );
@@ -397,7 +424,7 @@ Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
   );
 }
 
-Widget SegundaEtapa(selectDate, context, setState) {
+Widget SegundaEtapa(selectDate, context, setState, WindowWidth) {
   return Expanded(
     child: Column(
       children: [
@@ -435,11 +462,10 @@ Widget SegundaEtapa(selectDate, context, setState) {
             ),
           ),
         ),
-        GlassContainer(
-          Width: 0,
-          Height: 100,
-          Cor: Colors.transparent,
-          Child: GridView(
+        SizedBox(
+          width: double.maxFinite,
+          height: 75,
+          child: GridView(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   mainAxisExtent: 75, crossAxisCount: 3),
               children: ListaRegimes.map((e) => TextButton(
@@ -469,25 +495,29 @@ Widget SegundaEtapa(selectDate, context, setState) {
                               : const Color.fromRGBO(173, 99, 173, 1),
                         )),
                   )).toList()),
-        )
+        ),
+        const Text(
+          "CONTRATAÇÃO",
+          style: TextStyle(color: Colors.white),
+        ),
+        Contratacao(windowWidth: WindowWidth)
       ],
     ),
   );
 }
 
-Widget BotoesFimPagina(Data, ProximaEtapa, SalvarNovoAgendamento, RemoverAluno,
-    EnviarParaInicio, WindowWidth) {
+Widget BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
+    PagarMensalidade, WindowWidth) {
   if (Data != null) {
-    return GlassContainer(
-        Width: 0,
-        Height: WindowWidth > 500 ? 52 : 100,
-        Cor: Colors.transparent,
-        Child: GridView(
+    return SizedBox(
+        width: double.maxFinite,
+        height: WindowWidth > 500 ? 52 : 100,
+        child: GridView(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              mainAxisExtent: WindowWidth > 500 ? 50 : 60, crossAxisCount: 2),
+              mainAxisExtent: WindowWidth > 500 ? 50 : 60, crossAxisCount: 3),
           children: [
             TextButton(
-              onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,
+              onPressed: ProximaEtapa,
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(Colors.transparent),
               ),
@@ -522,12 +552,30 @@ Widget BotoesFimPagina(Data, ProximaEtapa, SalvarNovoAgendamento, RemoverAluno,
                   ),
                 ),
               ),
-            )
+            ),
+            TextButton(
+              onPressed: () => PagarMensalidade(),
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(Colors.transparent),
+              ),
+              child: const GlassContainer(
+                Cor: Colors.blue,
+                Width: 0,
+                Rotate: 20,
+                Height: 40,
+                Child: Center(
+                  child: Text(
+                    "PAGAR",
+                    style: TextStyle(color: Colors.blue, fontSize: 15),
+                  ),
+                ),
+              ),
+            ),
           ],
         ));
   }
   return TextButton(
-    onPressed: EtapaAtual < 1 ? ProximaEtapa : SalvarNovoAgendamento,
+    onPressed: ProximaEtapa,
     style: ButtonStyle(
       overlayColor: MaterialStateProperty.all(Colors.transparent),
     ),
@@ -628,4 +676,90 @@ Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
       ),
     );
   }).toList();
+}
+
+//////////////// DROB BOX ///////////////////
+class Contratacao extends StatefulWidget {
+  final double windowWidth;
+
+  const Contratacao({super.key, required this.windowWidth});
+
+  @override
+  _ContratacaoState createState() => _ContratacaoState();
+}
+
+class _ContratacaoState extends State<Contratacao> {
+  @override
+  Widget build(BuildContext context) {
+    double NavSize = widget.windowWidth > 601
+        ? ((widget.windowWidth * 0.2).clamp(200.0, double.infinity))
+        : 0;
+    double MaxWidth = widget.windowWidth - NavSize - 40;
+
+    return widget.windowWidth < 640
+        ? Column(
+            children: [
+              _buildTextField(MaxWidth),
+              _buildDropdownButton(MaxWidth),
+            ],
+          )
+        : Row(
+            children: [
+              _buildTextField(MaxWidth - 51),
+              _buildDropdownButton(MaxWidth - 51),
+            ],
+          );
+  }
+
+  Widget _buildTextField(double MaxWidth) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      width: widget.windowWidth < 640 ? MaxWidth : MaxWidth * 0.5,
+      child: TextField(
+        keyboardType: TextInputType.number,
+        style: const TextStyle(color: Colors.white, fontSize: 20),
+        controller: _controllerValor,
+        decoration: const InputDecoration(
+          hintText: "VALOR TOTAL",
+          hintStyle: TextStyle(color: Colors.white, fontSize: 20),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownButton(double MaxWidth) {
+    return SizedBox(
+        width: widget.windowWidth < 640 ? MaxWidth : MaxWidth * 0.5,
+        height: 65,
+        child: DropdownButton<String>(
+          value: _prestacoesSelecionado.text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
+          elevation: 0,
+          items: OpcoesContratacao.map((String option) {
+            return DropdownMenuItem<String>(
+              value: option,
+              child: Text(
+                option,
+                style: const TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? novoValor) {
+            setState(() {
+              _prestacoesSelecionado.text = novoValor!;
+            });
+          },
+        ));
+  }
 }

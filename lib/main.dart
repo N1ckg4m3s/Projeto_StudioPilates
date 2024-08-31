@@ -1,4 +1,5 @@
 import 'package:app_pilates/ConfigScreen/ConfScreenMain.dart';
+import 'package:app_pilates/Controle/Controller.dart';
 import 'package:app_pilates/Controle/IniciarVareaveis.dart';
 import 'package:app_pilates/HorarioScreen.dart';
 import 'package:app_pilates/RelatorioScreen/RelatorioScreenMain.dart';
@@ -12,6 +13,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     IniciarPrograma();
+    Controller().TODOS_OS_QUERY();
+
+    debugPrint('${MediaQuery.of(context).size.width}');
 
     return MaterialApp(
       initialRoute: "/WeekScreen",

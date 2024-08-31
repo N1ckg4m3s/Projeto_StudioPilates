@@ -63,9 +63,10 @@ class FaltasGeraisScreenState extends State<FaltasGeraisScreen> {
                     mainAxisExtent: 40,
                   ),
                   children: faltas.map((falta) {
+                    String Sigla = falta['dia'].substring(0, 3);
+                    String Hora = falta['horario'].substring(0, 2);
                     return Text(
-                      '${falta['nome']}: [ ${falta['dia']} - ${falta['horario']} ]'
-                          .toUpperCase(),
+                      '${falta['nome']}: [$Sigla - ${Hora}h]',
                       style: const TextStyle(color: Colors.white, fontSize: 12),
                     );
                   }).toList(),
