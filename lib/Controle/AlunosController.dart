@@ -28,9 +28,6 @@ class AlunosController {
             where: 'horario = ? AND dia_semana_id = ?',
             whereArgs: [hora.Horario, hora.DiaSemana],
           );
-
-          debugPrint(result.toString());
-
           int horarioId;
 
           if (result.isEmpty) {
@@ -56,51 +53,43 @@ class AlunosController {
         }
       }
     } catch (e) {
-      debugPrint('Erro ao adicionar aluno: $e');
+      return throw ("Catch on 'obterAlunoPorId' Error: $e");
     }
     return novoAluno;
   }
 
   // Atualiza os dados do aluno no DB
-  Future<void> atualizaAluno(Aluno alunoAtualizado) async {
+  void atualizaAluno(Aluno alunoAtualizado) async {
     final db = await _dbHelper.database;
 
     try {
-      debugPrint(alunoAtualizado.toMap().toString());
       await db.update(
         'aluno',
         alunoAtualizado.toMap(),
         where: 'id = ?',
         whereArgs: [alunoAtualizado.Id],
       );
-      debugPrint("to aq 1");
       await db.delete(
         'presenca',
         where: 'aluno_id = ?',
         whereArgs: [alunoAtualizado.Id],
       );
-      debugPrint("to aq 2");
 
       for (var hora in alunoAtualizado.PresencaSemana!) {
-        debugPrint("to aq 2.1");
         var result = await db.query(
           'hora',
           where: 'horario = ? AND dia_semana_id = ?',
           whereArgs: [hora.Horario, hora.DiaSemana],
         );
-        debugPrint("to aq 2.2");
         int horaId;
         if (result.isEmpty) {
-          debugPrint("to aq 2.3");
           horaId = await db.insert('hora', {
             'horario': hora.Horario,
             'dia_semana_id': hora.DiaSemana,
           });
         } else {
-          debugPrint("to aq 2.4");
           horaId = result.first['id'] as int;
         }
-        debugPrint("to aq 3");
 
         await db.insert('presenca', {
           'aluno_id': alunoAtualizado.Id,
@@ -108,18 +97,22 @@ class AlunosController {
         });
       }
     } catch (e) {
-      debugPrint("Erro ao atualizar aluno: $e");
+      debugPrint("Catch on 'atualizaAluno' Error: $e");
     }
   }
 
   // Obter todos os alunos
   Future<List<Aluno>> obterAlunos() async {
-    final db = await _dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query('aluno');
+    try {
+      final db = await _dbHelper.database;
+      final List<Map<String, dynamic>> maps = await db.query('aluno');
 
-    return List.generate(maps.length, (i) {
-      return Aluno.fromMap(maps[i]);
-    });
+      return List.generate(maps.length, (i) {
+        return Aluno.fromMap(maps[i]);
+      });
+    } catch (e) {
+      return throw ("Catch on 'obterAlunoPorId' Error: $e");
+    }
   }
 
   // Obter aluno por ID
@@ -134,10 +127,10 @@ class AlunosController {
       if (maps.isNotEmpty) {
         return Aluno.fromMap(maps.first);
       } else {
-        return Aluno(Id: -1, Nome: "-- ==ERRO AQUI ==--"); // Aluno de erro
+        return throw ("Catch on 'obterAlunoPorId' Error: [Aluno não encontrado ID: -1] ");
       }
     } catch (e) {
-      return Aluno(Id: -1, Nome: "-- ==ERRO AQUI ==--");
+      return throw ("Catch on 'obterAlunoPorId' Error: $e");
     }
   }
 
@@ -158,78 +151,88 @@ class AlunosController {
 
       return result;
     } catch (e) {
-      debugPrint("Erro ao obterFaltas: $e");
-      return [];
+      return throw ("Catch on 'obterFaltas' Error: $e");
     }
   }
 
   // Remover um aluno
-  Future<void> removerAluno(Aluno aluno) async {
-    final db = await _dbHelper.database;
+  void removerAluno(Aluno aluno) async {
+    try {
+      final db = await _dbHelper.database;
 
-    // Remover aluno dos horários
-    await Controller().removerDosHorarios(aluno);
+      // Remover aluno dos horários
+      Controller().removerDosHorarios(aluno);
 
-    // Remover aluno
-    await db.delete(
-      'aluno',
-      where: 'id = ?',
-      whereArgs: [aluno.Id],
-    );
-    await db.delete(
-      'presenca',
-      where: 'aluno_id = ?',
-      whereArgs: [aluno.Id],
-    );
+      // Remover aluno
+      await db.delete(
+        'aluno',
+        where: 'id = ?',
+        whereArgs: [aluno.Id],
+      );
+      await db.delete(
+        'presenca',
+        where: 'aluno_id = ?',
+        whereArgs: [aluno.Id],
+      );
+    } catch (e) {
+      debugPrint("Catch on 'removerAluno' Error: $e");
+    }
   }
 
   // Obter mensalidades
   Future<List<Aluno>> obterMensalidades(String filtro) async {
-    final alunos = await obterAlunos();
-    DateTime agora = DateTime.now().add(const Duration(days: 26));
-    int diasDiferenca;
-    return alunos.where((Aluno a) {
-      if (a.Parcelado! > 0 && a.Parcelado! <= (a.ParcelaPaga ?? 0)) {
-        debugPrint("Tem parcela, mas já foi tudo pago");
-        diasDiferenca = -agora
-            .difference(a.UltimoPagamento!.add(
-                Duration(days: 30 * (int.parse('${a.ModeloNegocios}') - 1))))
-            .inDays;
-      } else if (a.Parcelado! > 0) {
-        diasDiferenca = -agora
-            .difference(a.UltimoPagamento!.add(const Duration(days: 30)))
-            .inDays;
-      } else {
-        diasDiferenca = -agora
-            .difference(a.UltimoPagamento!
-                .add(Duration(days: (30 * int.parse('${a.ModeloNegocios}')))))
-            .inDays;
-      }
-      debugPrint('$filtro == $diasDiferenca');
+    try {
+      final alunos = await obterAlunos();
+      DateTime agora = DateTime.now().add(const Duration(days: 26));
+      int diasDiferenca;
+      return alunos.where((Aluno a) {
+        if (a.Parcelado! > 0 && a.Parcelado! <= (a.ParcelaPaga ?? 0)) {
+          // debugPrint("Tem parcela, mas já foi tudo pago");
+          diasDiferenca = -agora
+              .difference(a.UltimoPagamento!.add(
+                  Duration(days: 30 * (int.parse('${a.ModeloNegocios}') - 1))))
+              .inDays;
+        } else if (a.Parcelado! > 0) {
+          diasDiferenca = -agora
+              .difference(a.UltimoPagamento!.add(const Duration(days: 30)))
+              .inDays;
+        } else {
+          diasDiferenca = -agora
+              .difference(a.UltimoPagamento!
+                  .add(Duration(days: (30 * int.parse('${a.ModeloNegocios}')))))
+              .inDays;
+        }
 
-      if (filtro == "VENCIDAS") {
-        return diasDiferenca <= 0;
-      } else if (filtro == "ATÉ 4 DIAS") {
-        return diasDiferenca > 0 && diasDiferenca <= 4;
-      } else if (filtro == "1 SEMANA") {
-        return diasDiferenca > 4 && diasDiferenca <= 7;
-      }
-      return true;
-    }).toList();
+        if (filtro == "VENCIDAS") {
+          return diasDiferenca <= 0;
+        } else if (filtro == "ATÉ 4 DIAS") {
+          return diasDiferenca > 0 && diasDiferenca <= 4;
+        } else if (filtro == "1 SEMANA") {
+          return diasDiferenca > 4 && diasDiferenca <= 7;
+        }
+        return true;
+      }).toList();
+    } catch (e) {
+      return throw ("Catch on 'obterMensalidades' Error: $e");
+    }
   }
 
   String DominutivoDiaSemanaByFaltas(Aluno aluno) {
-    List<String> siglas = [];
+    try {
+      List<String> siglas = [];
 
-    if (aluno.PresencaSemana != null) {
-      for (var presenca in aluno.PresencaSemana!) {
-        if (!presenca.Presenca) {
-          siglas.add(Tranfomacao['${presenca.DiaSemana}']!);
+      if (aluno.PresencaSemana != null) {
+        for (var presenca in aluno.PresencaSemana!) {
+          if (!presenca.Presenca) {
+            siglas.add(Tranfomacao['${presenca.DiaSemana}']!);
+          }
         }
       }
-    }
 
-    return siglas.join(' | ');
+      return siglas.join(' | ');
+    } catch (e) {
+      return throw ("Catch on 'DominutivoDiaSemanaByFaltas' Error: $e");
+    }
   }
 
   void DefinirPresencaAluno(int idAluno, String dia, int idHora) async {
@@ -273,7 +276,7 @@ class AlunosController {
         );
       }
     } catch (e) {
-      debugPrint("Erro ao definir a presença do aluno: $e");
+      debugPrint("Catch on 'DefinirPresencaAluno' Error: $e");
     }
   }
 
@@ -291,13 +294,12 @@ class AlunosController {
       );
 
       if (result.isEmpty) {
-        return false; // Presença não definida, assume-se ausência
+        return false;
       }
 
       return result.first['presenca'] == 1;
     } catch (e) {
-      debugPrint("Erro ao obter a presença: $e");
-      return false; // Em caso de erro, assume-se ausência
+      return throw ("Catch on 'ObterPresencaAluno' Error: $e");
     }
   }
 
@@ -336,15 +338,13 @@ class AlunosController {
       // Filtre nulos e retorne a lista de horários
       return horarios.whereType<Hora>().toList();
     } catch (e) {
-      debugPrint("Erro ao obter horários do aluno: $e");
-      return [];
+      return throw ("Catch on 'ObterHorariosAluno' Error: $e");
     }
   }
 
   Future<List<Aluno>> ObterValoresPorFiltro(String filtro) async {
     final alunos = await obterAlunos();
     return alunos.where((Aluno a) {
-      debugPrint("${a.ModeloNegocios} // $filtro");
       switch (filtro) {
         case "MENSAIS":
           return a.ModeloNegocios == '1';
@@ -366,7 +366,7 @@ class AlunosController {
       SET presenca = 0
     ''');
     } catch (e) {
-      debugPrint("Deu CATCH LimparSemana $e");
+      debugPrint("Catch on 'LimparSemana' Error: $e");
     }
   }
 }

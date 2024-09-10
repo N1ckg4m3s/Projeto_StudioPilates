@@ -1,5 +1,4 @@
 import 'package:app_pilates/ConfigScreen/ConfScreenMain.dart';
-import 'package:app_pilates/Controle/Controller.dart';
 import 'package:app_pilates/Controle/IniciarVareaveis.dart';
 import 'package:app_pilates/HorarioScreen.dart';
 import 'package:app_pilates/RelatorioScreen/RelatorioScreenMain.dart';
@@ -13,17 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     IniciarPrograma();
-    Controller().TODOS_OS_QUERY();
-
-    debugPrint('${MediaQuery.of(context).size.width}');
 
     return MaterialApp(
       initialRoute: "/WeekScreen",
       routes: {
-        "/WeekScreen": (context) => const WeekScreen(), // 500
-        "/HorarioScreen": (context) => const HorarioScreen(), // 500
-        "/ConfigScreen": (context) => const ConfigScreen(), //
-        "/RelatScreen": (context) => const RelatorioScreen(), //
+        "/WeekScreen": (context) => const WeekScreen(),
+        "/HorarioScreen": (context) => const HorarioScreen(),
+        "/ConfigScreen": (context) => const ConfigScreen(),
+        "/RelatScreen": (context) => const RelatorioScreen(),
       },
     );
   }

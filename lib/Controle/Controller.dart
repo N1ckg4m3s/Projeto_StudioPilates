@@ -23,35 +23,73 @@ Map<String, String> Tranfomacao = {
 class Controller {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  Future<void> removerDosHorarios(Aluno aluno) async {
-    final db = await _dbHelper.database;
+  void removerDosHorarios(Aluno aluno) async {
+    try {
+      final db = await _dbHelper.database;
 
-    var presencas = await db.query(
-      'presenca',
-      where: 'aluno_id = ?',
-      whereArgs: [aluno.Id],
-    );
-
-    for (var presenca in presencas) {
-      await db.delete(
+      var presencas = await db.query(
         'presenca',
-        where: 'id = ?',
-        whereArgs: [presenca['id']],
+        where: 'aluno_id = ?',
+        whereArgs: [aluno.Id],
       );
+
+      for (var presenca in presencas) {
+        await db.delete(
+          'presenca',
+          where: 'id = ?',
+          whereArgs: [presenca['id']],
+        );
+      }
+    } catch (e) {
+      debugPrint("Catch on 'removerDosHorarios' Error: $e");
     }
   }
 
   Future<List<DiaSemana>> obterData() async {
-    final db = await _dbHelper.database;
+    try {
+      final db = await _dbHelper.database;
 
-    final diaSemanas = await db.query('dia_semana');
-    List<DiaSemana> data = [];
+      final diaSemanas = await db.query('dia_semana');
+      List<DiaSemana> data = [];
 
-    for (var diaSemana in diaSemanas) {
+      for (var diaSemana in diaSemanas) {
+        final horarios = await db.query(
+          'hora',
+          where: 'dia_semana_id = ?',
+          whereArgs: [diaSemana['id']],
+        );
+
+        List<Horario> horariosList = [];
+        for (var horario in horarios) {
+          var horarioDetails = await db.query(
+            'horario',
+            where: 'id = ?',
+            whereArgs: [horario['horario_id']],
+          );
+          horariosList.add(Horario(
+            Hora: "${horarioDetails[0]['hora']}",
+            IdAlunos: [], // Popular quando necessário
+          ));
+        }
+
+        data.add(DiaSemana(
+          Nome: "${diaSemana['nome']}",
+          Horarios: horariosList,
+        ));
+      }
+      return data;
+    } catch (e) {
+      return throw ("Catch on 'obterData' Error: $e");
+    }
+  }
+
+  Future<List<Horario>> obterHorariosDia(int diaSemanaId) async {
+    try {
+      final db = await _dbHelper.database;
       final horarios = await db.query(
         'hora',
         where: 'dia_semana_id = ?',
-        whereArgs: [diaSemana['id']],
+        whereArgs: [diaSemanaId],
       );
 
       List<Horario> horariosList = [];
@@ -66,36 +104,10 @@ class Controller {
           IdAlunos: [], // Popular quando necessário
         ));
       }
-
-      data.add(DiaSemana(
-        Nome: "${diaSemana['nome']}",
-        Horarios: horariosList,
-      ));
+      return horariosList;
+    } catch (e) {
+      return throw ("Catch on 'obterHorariosDia' Error: $e");
     }
-    return data;
-  }
-
-  Future<List<Horario>> obterHorariosDia(int diaSemanaId) async {
-    final db = await _dbHelper.database;
-    final horarios = await db.query(
-      'hora',
-      where: 'dia_semana_id = ?',
-      whereArgs: [diaSemanaId],
-    );
-
-    List<Horario> horariosList = [];
-    for (var horario in horarios) {
-      var horarioDetails = await db.query(
-        'horario',
-        where: 'id = ?',
-        whereArgs: [horario['horario_id']],
-      );
-      horariosList.add(Horario(
-        Hora: "${horarioDetails[0]['hora']}",
-        IdAlunos: [], // Popular quando necessário
-      ));
-    }
-    return horariosList;
   }
 
   Future<String> ObterDiaDaSemanaPorId(int Id) async {
@@ -108,8 +120,7 @@ class Controller {
       );
       return '${diaSemanaResult.first['nome']}';
     } catch (e) {
-      debugPrint("Deu CATCH ObterDiaDaSemanaPorId $e");
-      return "";
+      return throw ("Catch on 'ObterDiaDaSemanaPorId' Error: $e");
     }
   }
 
@@ -161,8 +172,7 @@ class Controller {
         IdAlunos: idsAlunos,
       );
     } catch (e) {
-      debugPrint('CATCH AO "obterAlunosHorariosEDia" $e');
-      return Horario(Hora: "", IdAlunos: []);
+      return throw ("Catch on 'obterAlunosHorariosEDia' Error: $e");
     }
   }
 
@@ -178,8 +188,6 @@ class Controller {
         whereArgs: [nomeDiaSemana],
       );
 
-      debugPrint('Resultado DiaSemana: ${diaSemanaResult.toString()}');
-
       if (diaSemanaResult.isEmpty) {
         return DiaSemana(Nome: nomeDiaSemana, Horarios: []);
       }
@@ -192,8 +200,6 @@ class Controller {
         where: 'dia_semana_id = ?',
         whereArgs: [diaSemanaId],
       );
-
-      debugPrint('Resultado Hora: ${horariosResult.toString()}');
 
       List<Horario> horariosList = [];
 
@@ -231,37 +237,39 @@ class Controller {
         Horarios: horariosList,
       );
     } catch (e) {
-      debugPrint("Erro ao obter o dia da semana: $e");
-      return DiaSemana(
-        Nome: "ERROR",
-        Horarios: [],
-      );
+      return throw ("Catch on 'obterDiaPorString' Error: $e");
     }
   }
 
   // Define as configurações padrões
-  Future<void> definirConfiguracoes(Configuracoes config) async {
-    final db = await _dbHelper.database;
-    await db.insert(
-        'configuracoes',
-        {
-          'horas_trabalhadas': config.HorasTrabalhadas.join(','),
-          'limite_aulas_por_horario': config.LimiteAulasPorHorario,
-          'dia_de_hoje': config.DiaDeHoje.toIso8601String(),
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace);
+  void definirConfiguracoes(Configuracoes config) async {
+    try {
+      final db = await _dbHelper.database;
+      await db.update(
+          'configuracoes',
+          {
+            'horas_trabalhadas': config.HorasTrabalhadas.join(','),
+            'limite_aulas_por_horario': config.LimiteAulasPorHorario,
+            'dia_de_hoje': config.DiaDeHoje.toIso8601String(),
+          },
+          where: "id = ?",
+          whereArgs: [1],
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    } catch (e) {
+      debugPrint("Catch on 'definirConfiguracoes' Error: $e");
+    }
   }
 
   // Obtem as configurações padrões
   Future<Configuracoes> obterConfiguracoes() async {
     try {
       final db = await _dbHelper.database;
-      final List<Map<String, dynamic>> config = await db.query('configuracoes');
-
+      final List<Map<String, dynamic>> config =
+          await db.query('configuracoes', where: "id = ?", whereArgs: [1]);
       if (config.isEmpty) {
         return Configuracoes(
           HorasTrabalhadas: [],
-          LimiteAulasPorHorario: 0,
+          LimiteAulasPorHorario: 4,
           DiaDeHoje: DateTime.now(),
         );
       }
@@ -276,20 +284,16 @@ class Controller {
         DiaDeHoje: DateTime.parse("${config[0]['dia_de_hoje']}"),
       );
     } catch (e) {
-      debugPrint("Deu catch $e");
-      return Configuracoes(
-        HorasTrabalhadas: [],
-        LimiteAulasPorHorario: 0,
-        DiaDeHoje: DateTime.now(),
-      );
+      return throw ("Catch on 'obterConfiguracoes' Error: $e");
     }
   }
 
   Future<String> gerarSiglasDoAluno(int id) async {
-    final db = await _dbHelper.database;
+    try {
+      final db = await _dbHelper.database;
 
-    // Consultar todas as presenças do aluno
-    final presencas = await db.rawQuery('''
+      // Consultar todas as presenças do aluno
+      final presencas = await db.rawQuery('''
       SELECT h.id AS hora_id, h.dia_semana_id, ds.nome AS dia_semana
       FROM presenca p
       INNER JOIN hora h ON p.hora_id = h.id
@@ -297,16 +301,19 @@ class Controller {
       WHERE p.aluno_id = ?
     ''', [id]);
 
-    List<String> siglas = [];
+      List<String> siglas = [];
 
-    for (var presenca in presencas) {
-      String nomeDiaSemana = '${presenca['dia_semana']}';
-      if (Tranfomacao.containsKey(nomeDiaSemana)) {
-        siglas.add(Tranfomacao[nomeDiaSemana]!);
+      for (var presenca in presencas) {
+        String nomeDiaSemana = '${presenca['dia_semana']}';
+        if (Tranfomacao.containsKey(nomeDiaSemana)) {
+          siglas.add(Tranfomacao[nomeDiaSemana]!);
+        }
       }
-    }
 
-    return siglas.join(' | ');
+      return siglas.join(' | ');
+    } catch (e) {
+      return throw ("Catch on 'gerarSiglasDoAluno' Error: $e");
+    }
   }
 
   Future<int> obterIdDiaPorString(String nome) async {
@@ -324,8 +331,7 @@ class Controller {
 
       return result.first['id'] as int; // Obter o valor do ID do mapa
     } catch (e) {
-      debugPrint("Erro ao obter ID do dia da semana: $e");
-      return -1; // Indica que ocorreu um erro
+      return throw ("Catch on 'obterIdDiaPorString' Error: $e");
     }
   }
 
@@ -344,8 +350,7 @@ class Controller {
 
       return result.first['id'] as int; // Obter o valor do ID do mapa
     } catch (e) {
-      debugPrint("Erro ao obter ID da hora: $e");
-      return -1; // Indica que ocorreu um erro
+      return throw ("Catch on 'obterIdHoraPorString' Error: $e");
     }
   }
 
@@ -366,8 +371,7 @@ class Controller {
 
       return alunoIds;
     } catch (e) {
-      debugPrint("Erro ao obter alunos da hora: $e");
-      return []; // Retorna uma lista vazia em caso de erro
+      return throw ("Catch on 'obterAlunosDaHora' Error: $e");
     }
   }
 

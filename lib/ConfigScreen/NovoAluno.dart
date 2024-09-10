@@ -72,12 +72,13 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
         HorariosSelecionados.add(DataEnvio_Week_Horario(
             DiaDaSemana: DiaSemanaName, HorarioSelecionado: H.Horario));
       }
+      int ModNeg = int.parse(Data.ModeloNegocios);
 
       _controller.text = Data.GetNome();
       _controllerData.text = '${Data.GetUltimoPagamento()}';
       _controllerAnotacao.text = Data.Anotacoes ?? "";
-      _controllerRegime.text = ListaRegimes[int.parse(Data.ModeloNegocios) - 1];
-      _controllerValor.text = '${Data.ValorTotal}';
+      _controllerRegime.text = ListaRegimes[ModNeg - (ModNeg > 0 ? 1 : 0)];
+      _controllerValor.text = '${Data.ValorTotal ?? 0}';
 
       _prestacoesSelecionado.text =
           OpcoesContratacao[Data.Parcelado == 0 ? 0 : Data.Parcelado - 1];
@@ -149,8 +150,6 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
         EtapaAtual += 1;
       });
     } else if (EtapaAtual == 1) {
-      debugPrint(_prestacoesSelecionado.text);
-
       if (_controllerData.text.isEmpty) {
         MsgErro("Esqueceu da data de registro");
         return;
@@ -180,7 +179,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
           DiaSemana: diaSemanaId));
     }
     Aluno novoAluno = Aluno(
-        Id: (Data != null) ? -1 : Data.Id,
+        Id: Data == null ? -1 : (Data.Id ?? -1),
         Nome: _controller.text,
         PresencaSemana: HorasPraPresenca,
         Anotacoes: _controllerAnotacao.text,
@@ -212,7 +211,20 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     _prestacoesSelecionado.text =
         '${IndexOpcoes == 0 ? IndexOpcoes : IndexOpcoes + 1}';
     ParcelasPagas = ParcelasPagas ?? 0 + 1;
-    SalvarNovoAgendamento();
+    EtapaAtual = 1;
+    ProximaEtapa();
+  }
+
+  void RenovarMensalidade() {
+    DateTime UltimoRegistro = DateTime.parse(_controllerData.text);
+
+    DateTime NovoRegistro = DateTime.parse(
+        '${UltimoRegistro.year}-${UltimoRegistro.month + 1}-${UltimoRegistro.day}');
+
+    _controllerData.text = '$NovoRegistro';
+
+    EtapaAtual = 1;
+    ProximaEtapa();
   }
 
   bool CheckSeSelecionado(String DiaDaSemana, String HoraSelecionada) {
@@ -295,7 +307,7 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
           if (EtapaAtual == 1)
             SegundaEtapa(selectDate, context, setState, WindowWidth),
           BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
-              PagarMensalidade, WindowWidth)
+              PagarMensalidade, RenovarMensalidade, WindowWidth)
         ],
       ),
     );
@@ -507,92 +519,58 @@ Widget SegundaEtapa(selectDate, context, setState, WindowWidth) {
 }
 
 Widget BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
-    PagarMensalidade, WindowWidth) {
-  if (Data != null) {
-    return SizedBox(
-        width: double.maxFinite,
-        height: WindowWidth > 500 ? 52 : 100,
-        child: GridView(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              mainAxisExtent: WindowWidth > 500 ? 50 : 60, crossAxisCount: 3),
-          children: [
-            TextButton(
-              onPressed: ProximaEtapa,
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent),
-              ),
-              child: GlassContainer(
-                Cor: const Color.fromRGBO(12, 255, 32, 1),
-                Width: 0,
-                Rotate: 20,
-                Height: 40,
-                Child: Center(
-                  child: Text(
-                    EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
-                    style: const TextStyle(
-                        color: Color.fromRGBO(12, 255, 32, 1), fontSize: 15),
-                  ),
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () => {RemoverAluno(), EnviarParaInicio()},
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent),
-              ),
-              child: const GlassContainer(
-                Cor: Colors.red,
-                Width: 0,
-                Rotate: 20,
-                Height: 40,
-                Child: Center(
-                  child: Text(
-                    "REMOVER",
-                    style: TextStyle(color: Colors.red, fontSize: 15),
-                  ),
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () => PagarMensalidade(),
-              style: ButtonStyle(
-                overlayColor: MaterialStateProperty.all(Colors.transparent),
-              ),
-              child: const GlassContainer(
-                Cor: Colors.blue,
-                Width: 0,
-                Rotate: 20,
-                Height: 40,
-                Child: Center(
-                  child: Text(
-                    "PAGAR",
-                    style: TextStyle(color: Colors.blue, fontSize: 15),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ));
-  }
-  return TextButton(
-    onPressed: ProximaEtapa,
-    style: ButtonStyle(
-      overlayColor: MaterialStateProperty.all(Colors.transparent),
-    ),
-    child: GlassContainer(
-      Cor: const Color.fromRGBO(12, 255, 32, 1),
-      Width: 0,
-      Rotate: 20,
-      Height: 40,
-      Child: Center(
-        child: Text(
-          EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
-          style: const TextStyle(
-              color: Color.fromRGBO(12, 255, 32, 1), fontSize: 15),
+    PagarMensalidade, RenovarMensalidade, WindowWidth) {
+  Widget GerarBotao(String Texto, Color Cor, dynamic Callback) {
+    return TextButton(
+      onPressed: Callback,
+      style: ButtonStyle(
+        overlayColor: MaterialStateProperty.all(Colors.transparent),
+      ),
+      child: GlassContainer(
+        Cor: Cor,
+        Width: 0,
+        Rotate: 20,
+        Height: 40,
+        Child: Center(
+          child: Text(
+            Texto,
+            style: TextStyle(color: Cor, fontSize: 15),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget BotaoEtapa = GerarBotao(EtapaAtual < 1 ? "PROXIMA ETAPA" : "SALVAR",
+      const Color.fromRGBO(12, 255, 32, 1), ProximaEtapa);
+
+  if (Data != null) {
+    bool TemParcelaAinda =
+        int.parse(_prestacoesSelecionado.text) > (ParcelasPagas ?? 0);
+
+    Widget BotaoPagarRenovar = GerarBotao(
+        TemParcelaAinda ? "PAGAR" : "RENOVAR",
+        Colors.blue,
+        TemParcelaAinda
+            ? () => PagarMensalidade()
+            : () => RenovarMensalidade());
+
+    return SizedBox(
+      width: double.maxFinite,
+      height: WindowWidth > 500 ? 52 : 100,
+      child: GridView(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            mainAxisExtent: WindowWidth > 500 ? 50 : 60, crossAxisCount: 3),
+        children: [
+          BotaoEtapa,
+          GerarBotao("REMOVER", Colors.red,
+              () => {RemoverAluno(), EnviarParaInicio()}),
+          BotaoPagarRenovar,
+        ],
+      ),
+    );
+  }
+  return BotaoEtapa;
 }
 
 Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,

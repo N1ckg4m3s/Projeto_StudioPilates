@@ -14,10 +14,6 @@ List<String> diasSemana = [
 ];
 
 Future<void> IniciarPrograma() async {
-  Configuracoes configuracoes = Configuracoes(
-    DiaDeHoje: DateTime.now(),
-    HorasTrabalhadas: [6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19, 20],
-    LimiteAulasPorHorario: 4,
-  );
+  Configuracoes configuracoes = await Controller().obterConfiguracoes();
   Controller().definirConfiguracoes(configuracoes);
 }

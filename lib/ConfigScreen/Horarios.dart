@@ -28,11 +28,9 @@ class HorarioScreenState extends State<HorarioScreen> {
       setState(() {
         _horasTrabalhadas = configs.HorasTrabalhadas;
         _limiteAulasPorHorario = configs.LimiteAulasPorHorario;
-        // _isLoading = false;
       });
     } catch (e) {
-      // Gerenciar erro, se necessário
-      print('Erro ao carregar configurações: $e');
+      debugPrint('Erro ao carregar configurações: $e');
     }
   }
 
@@ -50,7 +48,7 @@ class HorarioScreenState extends State<HorarioScreen> {
         HorasTrabalhadas: _horasTrabalhadas,
         LimiteAulasPorHorario: _limiteAulasPorHorario,
         DiaDeHoje: DateTime.now());
-    await Controller().definirConfiguracoes(updatedConfigs);
+    Controller().definirConfiguracoes(updatedConfigs);
   }
 
   @override

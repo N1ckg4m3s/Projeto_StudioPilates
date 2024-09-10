@@ -147,7 +147,7 @@ class MensalidadesScreenState extends State<MensalidadesScreen> {
 
                     if (aluno.Parcelado! > 0 &&
                         aluno.Parcelado! <= (aluno.ParcelaPaga ?? 0)) {
-                      debugPrint("Tem parcela, mas já foi tudo pago");
+                      // debugPrint("Tem parcela, mas já foi tudo pago");
                       diasDiferenca = -hoje
                           .difference(ultimoPagamento.add(Duration(
                               days: 30 *
