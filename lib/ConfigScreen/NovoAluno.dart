@@ -545,8 +545,10 @@ Widget BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
       const Color.fromRGBO(12, 255, 32, 1), ProximaEtapa);
 
   if (Data != null) {
-    bool TemParcelaAinda =
-        int.parse(_prestacoesSelecionado.text) > (ParcelasPagas ?? 0);
+    DateTime UltimoRegistro = Data.UltimoPagamento;
+    int Diferenca = UltimoRegistro.difference(DateTime.now()).inDays;
+
+    bool TemParcelaAinda = Data.Parcelado! > (ParcelasPagas ?? 0);
 
     Widget BotaoPagarRenovar = GerarBotao(
         TemParcelaAinda ? "PAGAR" : "RENOVAR",
@@ -554,18 +556,19 @@ Widget BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
         TemParcelaAinda
             ? () => PagarMensalidade()
             : () => RenovarMensalidade());
-
+    int NumeroDeBotoes = (!TemParcelaAinda && Diferenca <= 5) ? 3 : 2;
     return SizedBox(
       width: double.maxFinite,
       height: WindowWidth > 500 ? 52 : 100,
       child: GridView(
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            mainAxisExtent: WindowWidth > 500 ? 50 : 60, crossAxisCount: 3),
+            mainAxisExtent: WindowWidth > 500 ? 50 : 60,
+            crossAxisCount: NumeroDeBotoes),
         children: [
           BotaoEtapa,
           GerarBotao("REMOVER", Colors.red,
               () => {RemoverAluno(), EnviarParaInicio()}),
-          BotaoPagarRenovar,
+          if (!TemParcelaAinda && Diferenca <= 5) BotaoPagarRenovar,
         ],
       ),
     );
