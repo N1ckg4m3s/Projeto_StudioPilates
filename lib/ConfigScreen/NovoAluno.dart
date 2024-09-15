@@ -240,22 +240,6 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
     }
   }
 
-  double DefinirTamanho(int Quantidade) {
-    if (Quantidade <= 4) {
-      return 170;
-    }
-    if (Quantidade <= 8) {
-      return 150 * 2;
-    }
-    if (Quantidade <= 12) {
-      return 150 * 3;
-    }
-    if (Quantidade <= 15) {
-      return 150 * 4;
-    }
-    return 0;
-  }
-
   Future<void> selectDate(
       BuildContext context, TextEditingController Contr) async {
     final DateTime? picked = await showDatePicker(
@@ -295,15 +279,8 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
             ),
           ),
           if (EtapaAtual == 0)
-            PrimeiraEtapa(
-                HorariosSelecionados,
-                setState,
-                DefinirTamanho,
-                WindowWidth,
-                CheckSeSelecionado,
-                AdicionarHorario,
-                RemoverHorario,
-                Data),
+            PrimeiraEtapa(HorariosSelecionados, setState, WindowWidth,
+                CheckSeSelecionado, AdicionarHorario, RemoverHorario, Data),
           if (EtapaAtual == 1)
             SegundaEtapa(selectDate, context, setState, WindowWidth),
           BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
@@ -314,20 +291,81 @@ class NovoAgendamentoScreenState extends State<NovoAgendamentoScreen> {
   }
 }
 
-Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
-    WindowWidth, CheckSeSelecionado, AdicionarHorario, RemoverHorario, Data) {
+Widget PrimeiraEtapa(HorariosSelecionados, setState, WindowWidth,
+    CheckSeSelecionado, AdicionarHorario, RemoverHorario, Data) {
   Future<List<String>> getNomesAlunos(Horario horario, String DiaNome) async {
-    final IdHorario = await Controller().obterIdHoraPorString(horario.Hora);
-    final IdDia = await Controller().obterIdDiaPorString(DiaNome);
-    final AlunosHora = await Controller().obterAlunosDaHora(IdHorario, IdDia);
+    final obterAlunosHorariosEDia =
+        await Controller().obterAlunosHorariosEDia(DiaNome, horario.Hora);
 
-    if (AlunosHora.isEmpty) return [];
-    List<Future<String>> nomeFutures = AlunosHora.map((id) async {
+    if (obterAlunosHorariosEDia.IdAlunos.isEmpty) return [];
+    List<Future<String>> nomeFutures =
+        obterAlunosHorariosEDia.IdAlunos.map((id) async {
       Aluno aluno = await AlunosController().obterAlunoPorId(id);
       return aluno.GetNome();
     }).toList();
 
     return Future.wait(nomeFutures);
+  }
+
+  Widget ListWeek(String DiaNome) {
+    return GlassContainer(
+        Cor: const Color.fromRGBO(255, 255, 255, 1),
+        Width: 0,
+        MaxHeight: 170, //
+        Height: VendoDiaSemana == DiaNome ? 0 : 40,
+        Child: Column(children: [
+          Text(
+            DiaNome,
+            style: const TextStyle(color: Colors.white, fontSize: 25),
+          )
+        ]));
+  }
+
+  Widget ConstruirCard(String DiaNome) {
+    return GlassContainer(
+      Cor: const Color.fromRGBO(255, 255, 255, 1),
+      Width: 0,
+      MaxHeight: 500, //
+      Height: 0,
+      Child: Column(
+        children: [
+          Text(
+            DiaNome,
+            style: const TextStyle(color: Colors.white, fontSize: 25),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Widget>>(
+              future: FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
+                  AdicionarHorario, RemoverHorario, getNomesAlunos),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(
+                      child: Text('Erro ao carregar dados: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('Nenhum dado disponível.'));
+                }
+
+                final widgets = snapshot.data!;
+
+                return GridView(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: WindowWidth > 950
+                        ? 4
+                        : WindowWidth > 780
+                            ? 3
+                            : 2,
+                    mainAxisExtent: WindowWidth > 500 ? 130 : 140,
+                  ),
+                  children: widgets,
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   return Expanded(
@@ -357,78 +395,37 @@ Widget PrimeiraEtapa(HorariosSelecionados, setState, DefinirTamanho,
         ),
         Expanded(
           child: ListView(
-            children: DiasDaSemana.map(
-              (DiaNome) => TextButton(
-                onPressed: () => {
-                  setState(
-                    () {
-                      VendoDiaSemana = VendoDiaSemana == DiaNome ? "" : DiaNome;
-                    },
-                  )
-                },
-                style: ButtonStyle(
-                  overlayColor: MaterialStateProperty.all(Colors.transparent),
-                ),
-                child: GlassContainer(
-                  Cor: const Color.fromRGBO(255, 255, 255, 1),
-                  Width: 0,
-                  MaxHeight: DefinirTamanho(1), //
-                  Height: VendoDiaSemana == DiaNome ? 0 : 40,
-                  Child: Column(
-                    children: [
-                      Text(
-                        DiaNome,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 25),
-                      ),
-                      if (VendoDiaSemana == DiaNome)
-                        Expanded(
-                          child: FutureBuilder<List<Widget>>(
-                            future: FutureCard(
-                                DiaNome,
-                                Data,
-                                setState,
-                                CheckSeSelecionado,
-                                AdicionarHorario,
-                                RemoverHorario,
-                                getNomesAlunos),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              } else if (snapshot.hasError) {
-                                return Center(
-                                    child: Text(
-                                        'Erro ao carregar dados: ${snapshot.error}'));
-                              } else if (!snapshot.hasData ||
-                                  snapshot.data!.isEmpty) {
-                                return const Center(
-                                    child: Text('Nenhum dado disponível.'));
-                              }
-
-                              final widgets = snapshot.data!;
-
-                              return GridView(
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: WindowWidth > 950
-                                      ? 4
-                                      : WindowWidth > 780
-                                          ? 3
-                                          : 2,
-                                  mainAxisExtent: WindowWidth > 500 ? 130 : 140,
-                                ),
-                                children: widgets,
-                              );
+            children: (VendoDiaSemana == "")
+                ? DiasDaSemana.map((DiaNome) => TextButton(
+                    onPressed: () => {
+                          setState(
+                            () {
+                              VendoDiaSemana =
+                                  VendoDiaSemana == DiaNome ? "" : DiaNome;
                             },
-                          ),
+                          )
+                        },
+                    style: ButtonStyle(
+                      overlayColor:
+                          MaterialStateProperty.all(Colors.transparent),
+                    ),
+                    child: ListWeek(DiaNome))).toList()
+                : [
+                    TextButton(
+                      onPressed: () => {
+                        setState(
+                          () {
+                            VendoDiaSemana = "";
+                          },
                         )
-                    ],
-                  ),
-                ),
-              ),
-            ).toList(),
+                      },
+                      style: ButtonStyle(
+                        overlayColor:
+                            MaterialStateProperty.all(Colors.transparent),
+                      ),
+                      child: ConstruirCard(VendoDiaSemana),
+                    )
+                  ],
           ),
         )
       ],
@@ -576,10 +573,16 @@ Widget BotoesFimPagina(Data, ProximaEtapa, RemoverAluno, EnviarParaInicio,
   return BotaoEtapa;
 }
 
-Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
-    AdicionarHorario, RemoverHorario, getNomesAlunos) async {
+Future<List<Widget>> FutureCard(
+    String DiaName,
+    Data,
+    setState,
+    CheckSeSelecionado,
+    AdicionarHorario,
+    RemoverHorario,
+    getNomesAlunos) async {
   final Configs = await Controller().obterConfiguracoes();
-  final Dia = await Controller().obterDiaPorString(DiaNome);
+  final Dia = await Controller().obterDiaPorString(DiaName);
 
   final DiasJaNoSist = Dia.Horarios.toSet();
   for (var HoraNaConfig in Configs.HorasTrabalhadas) {
@@ -590,14 +593,15 @@ Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
     }
   }
 
-  return DiasJaNoSist.map((horario) {
+  return DiasJaNoSist.where((element) => element.IdAlunos.length < 4)
+      .map((horario) {
     return TextButton(
       onPressed: () {
         setState(() {
-          if (!CheckSeSelecionado(DiaNome, horario.Hora)) {
-            AdicionarHorario(DiaNome, horario.Hora);
+          if (!CheckSeSelecionado(DiaName, horario.Hora)) {
+            AdicionarHorario(DiaName, horario.Hora);
           } else {
-            RemoverHorario(DiaNome, horario.Hora);
+            RemoverHorario(DiaName, horario.Hora);
           }
         });
       },
@@ -607,7 +611,7 @@ Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
       child: GlassContainer(
         Width: 0,
         Height: 0,
-        Cor: !CheckSeSelecionado(DiaNome, horario.Hora)
+        Cor: !CheckSeSelecionado(DiaName, horario.Hora)
             ? const Color.fromRGBO(255, 255, 255, 1)
             : const Color.fromRGBO(173, 99, 173, 1),
         Child: Column(
@@ -616,7 +620,7 @@ Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
               child: Text(
                 horario.Hora,
                 style: TextStyle(
-                  color: !CheckSeSelecionado(DiaNome, horario.Hora)
+                  color: !CheckSeSelecionado(DiaName, horario.Hora)
                       ? const Color.fromRGBO(255, 255, 255, 1)
                       : const Color.fromRGBO(173, 99, 173, 1),
                   fontSize: 15,
@@ -624,7 +628,7 @@ Future<List<Widget>> FutureCard(DiaNome, Data, setState, CheckSeSelecionado,
               ),
             ),
             FutureBuilder<List<String>>(
-              future: getNomesAlunos(horario, DiaNome),
+              future: getNomesAlunos(horario, DiaName),
               builder: (context, alunosSnapshot) {
                 if (alunosSnapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
